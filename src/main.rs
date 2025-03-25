@@ -1,5 +1,11 @@
 mod world;
-pub use world::{ Coord, World };
+pub use world::*;
+
+mod runner;
+pub use runner::*;
+
+use std::fs::File;
+use std::io::Read;
 
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
@@ -13,5 +19,9 @@ impl Default for U32Cell {
 
 
 fn main() {
+    let script = File::open("samples/simple.isolang").unwrap();
+    for ch in script.bytes() {
+        let ch = ch.unwrap() as char;
+    }
     let world = World::<U32Cell>::new();
 }
