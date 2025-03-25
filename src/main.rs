@@ -1,3 +1,65 @@
+use core::fmt;
+use std::collections::BTreeMap;
+
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub struct Coord {
+    r  : usize,
+    ul : usize
+}
+
+impl Coord {
+    pub const ZERO : Self = Self { r : 0, ul : 0 };
+}
+
+impl fmt::Debug for Coord {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "(→{} ↖{})", self.r, self.ul)
+    }
+}
+
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[repr(transparent)]
+pub struct Cell(u32);
+impl Default for Cell {
+    fn default() -> Self { Self(1) }
+}
+
+
+pub struct World {
+    head  : Coord,
+    cells : BTreeMap<Coord, Cell>
+}
+
+impl Default for World {
+    fn default() -> Self { Self {
+        head  : Coord::ZERO,
+        cells : BTreeMap::new()
+    } }
+}
+
+impl World {
+
+    pub fn head(&self) -> Coord {
+        self.head
+    }
+
+    pub fn get(&self, coord : Coord) -> Cell {
+        self.cells[&coord]
+    }
+
+    pub fn get_mut(&mut self, coord : Coord) -> &mut Cell {
+        self.cells.entry(coord).or_insert(Cell::default())
+    }
+
+    pub fn insert(&mut self, coord : Coord, cell : Cell) {
+        self.cells.insert(coord, cell);
+    }
+
+}
+
+
 fn main() {
     println!("Hello, world!");
 }
