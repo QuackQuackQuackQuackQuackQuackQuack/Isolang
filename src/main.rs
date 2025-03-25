@@ -22,7 +22,9 @@ impl fmt::Debug for Coord {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(transparent)]
 pub struct Cell(u32);
+
 impl Default for Cell {
+    #[inline(always)]
     fn default() -> Self { Self(1) }
 }
 
@@ -46,15 +48,15 @@ impl World {
     }
 
     pub fn get(&self, coord : Coord) -> Cell {
-        self.cells[&coord]
-    }
-
-    pub fn get_mut(&mut self, coord : Coord) -> &mut Cell {
-        self.cells.entry(coord).or_insert(Cell::default())
+        self.cells.get(&coord).cloned().unwrap_or(Cell::default())
     }
 
     pub fn insert(&mut self, coord : Coord, cell : Cell) {
-        self.cells.insert(coord, cell);
+        if (cell == Cell::default()) {
+            self.cells.remove(&coord);
+        } else {
+            self.cells.insert(coord, cell);
+        }
     }
 
 }
