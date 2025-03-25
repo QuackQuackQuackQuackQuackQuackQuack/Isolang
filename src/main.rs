@@ -4,8 +4,8 @@ use std::collections::BTreeMap;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct Coord {
-    r  : usize,
-    ul : usize
+    r  : isize,
+    ul : isize
 }
 
 impl Coord {
