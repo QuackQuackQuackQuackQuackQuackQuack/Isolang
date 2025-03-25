@@ -10,6 +10,17 @@ pub struct Coord {
 
 impl Coord {
     pub const ZERO : Self = Self { r : 0, ul : 0 };
+    pub fn adjacent(&self, axis : char, sign : char) -> Result<Self, ()> {
+        return Ok(match (axis,sign) {
+            ('-','<') -> Self { r : self.r - 1, ul : self.ul },
+	    ('-','>') -> Self { r : self.r + 1, ul : self.ul },
+	    ('\','<') -> Self { r : self.r, ul : self.ul + 1 },
+	    ('\','>') -> Self { r : self.r, ul : self.ul - 1 },
+	    ('/','<') -> Self { r : self.r - 1, ul : self.ul - 1 },
+ 	    ('/','>') -> Self { r : self.r + 1, ul : self.ul + 1 },
+	    _ -> return Err(())
+        });
+    }
 }
 
 impl fmt::Debug for Coord {
