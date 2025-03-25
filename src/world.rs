@@ -33,29 +33,17 @@ impl fmt::Debug for Coord {
 }
 
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-#[repr(transparent)]
-pub struct Cell(u32);
-
-impl Default for Cell {
-    #[inline(always)]
-    fn default() -> Self { Self(1) }
-}
-
-
-pub struct World {
+pub struct World<Cell> {
     head  : Coord,
     cells : BTreeMap<Coord, Cell>
 }
 
-impl Default for World {
-    fn default() -> Self { Self {
+impl<Cell : PartialEq + Clone + Copy + Default> World<Cell> {
+
+    pub fn new() -> Self { Self {
         head  : Coord::ZERO,
         cells : BTreeMap::new()
     } }
-}
-
-impl World {
 
     pub fn head(&self) -> Coord {
         self.head
