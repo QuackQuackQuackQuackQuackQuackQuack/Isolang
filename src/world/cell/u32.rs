@@ -1,0 +1,31 @@
+use crate::world::Cell;
+use core::ops::Add;
+use core::fmt;
+
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[repr(transparent)]
+pub struct U32Cell(u32);
+
+impl Default for U32Cell {
+    #[inline(always)]
+    fn default() -> Self { Self(1) }
+}
+
+impl Add for U32Cell {
+    type Output = Self;
+    fn add(self, rhs : Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl Cell for U32Cell { }
+
+impl fmt::Display for U32Cell {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        match (char::from_u32(self.0)) {
+            Some(ch) => write!(f, "{}", ch),
+            None     => Ok(())
+        }
+    }
+}
