@@ -3,8 +3,10 @@ use std::fs::File;
 use rand::random;
 
 
-mod ins;
-pub use ins::Ins;
+pub mod ins;
+use ins::Ins;
+
+mod parser;
 
 
 pub struct ScriptRunner<C : Cell> {
