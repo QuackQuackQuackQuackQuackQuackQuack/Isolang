@@ -1,12 +1,14 @@
 use crate::world::{ Adj, Dir };
 
 
+/// Instruction modifier
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct InsMod {
     pub kind         : InsModKind,
     pub random_maybe : bool
 }
 
+/// Instruction modifier kind
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum InsModKind {
     Invert,
@@ -14,6 +16,7 @@ pub enum InsModKind {
 }
 
 
+/// Instruction
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Ins {
 
@@ -34,12 +37,15 @@ pub enum Ins {
 
     IfZeroCond { ins : Box<Ins> },
 
-    RandomlyChoose { options : Box<(Ins, Ins)> }
+    RandomlyChoose { options : Box<(Ins, Ins)> },
+
+    Exit
 
 }
 
 impl Ins {
 
+    /// Inverts the instruction.
     pub fn invert(self) -> Result<Self, ()> { match (self) {
 
         Self::MoveHead { adj, dir } => Ok(Self::MoveHead { adj, dir : -dir }),
@@ -56,11 +62,14 @@ impl Ins {
 
         Self::IfNotZeroCond { ins } => Ok(Self::IfZeroCond { ins }),
 
-        Self::RandomlyChoose { .. } => Err(())
+        Self::RandomlyChoose { .. } => Err(()),
+
+        Self::Exit { .. } => unreachable!()
 
     } }
 
 
+    /// Applies an instruction modifier to this instruction.
     pub fn modify(self, modifier : InsMod) -> Result<Self, ()> {
         let ins = match (modifier.kind) {
             InsModKind::Invert        => self.clone().invert(),
