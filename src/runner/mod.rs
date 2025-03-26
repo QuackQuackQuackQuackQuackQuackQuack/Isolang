@@ -11,12 +11,13 @@ mod parser;
 
 pub struct ScriptRunner<C : Cell> {
     f     : File,
-    world : World<C>
+    world : World<C>,
+    code_head : usize
 }
 
 impl<C : Cell> ScriptRunner<C> {
     pub fn new(f : File) -> Self {
-        Self { f, world : World::new() }
+        Self { f, world : World::new() , code_head : 0}
     }
 }
 
