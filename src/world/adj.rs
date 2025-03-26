@@ -1,6 +1,3 @@
-use crate::world::Axis;
-
-
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum Adj {
 
@@ -31,10 +28,6 @@ pub enum Adj {
 
 }
 
-impl Adj {
-    pub fn try_to_axis(self) -> Result<Axis, ()> { self.try_into() }
-}
-
 impl TryFrom<char> for Adj {
     type Error = ();
     fn try_from(ch : char) -> Result<Self, Self::Error> { Ok(match (ch) {
@@ -45,15 +38,4 @@ impl TryFrom<char> for Adj {
         'v'  => Self::D2,
         _    => { return Err(()); }
     }) }
-}
-
-impl TryInto<Axis> for Adj {
-    type Error = ();
-    fn try_into(self) -> Result<Axis, Self::Error> { match (self) {
-        Self::LR   => Ok(Axis::LR),
-        Self::ULDR => Ok(Axis::ULDR),
-        Self::DLUR => Ok(Axis::DLUR),
-        Self::U2   => Err(()),
-        Self::D2   => Err(())
-    } }
 }

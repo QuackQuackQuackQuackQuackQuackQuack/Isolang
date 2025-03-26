@@ -4,9 +4,6 @@ use std::collections::BTreeMap;
 mod coord;
 pub use coord::Coord;
 
-mod axis;
-pub use axis::Axis;
-
 mod adj;
 pub use adj::Adj;
 

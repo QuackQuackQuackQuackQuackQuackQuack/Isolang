@@ -1,4 +1,4 @@
-use crate::world::{ Axis, Adj, Dir };
+use crate::world::{ Adj, Dir };
 use core::fmt;
 use core::ops::{ Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Neg, Index, IndexMut };
 
@@ -62,32 +62,14 @@ impl Neg for Coord {
     }
 }
 
-impl Add<Axis> for Coord {
-    type Output = (Self, Self,);
-    fn add(self, axis : Axis) -> Self::Output {
-        self + axis.to_adj()
-    }
-}
-impl Add<(Axis, Dir,)> for Coord {
-    type Output = Self;
-    fn add(self, (axis, dir,) : (Axis, Dir,)) -> Self::Output {
-        (self + axis)[dir]
-    }
-}
-impl AddAssign<(Axis, Dir,)> for Coord {
-    fn add_assign(&mut self, rhs : (Axis, Dir,)) {
-        *self = *self + rhs;
-    }
-}
-
 impl Add<Adj> for Coord {
     type Output = (Self, Self,);
     fn add(self, adj : Adj) -> Self::Output { match (adj) {
-        Adj::LR   => (self + (Axis::LR,   Dir::L,), self + (Axis::LR,   Dir::R,)),
-        Adj::ULDR => (self + (Axis::ULDR, Dir::L,), self + (Axis::ULDR, Dir::R,)),
-        Adj::DLUR => (self + (Axis::DLUR, Dir::L,), self + (Axis::DLUR, Dir::R,)),
-        Adj::U2   => (self + (Axis::ULDR, Dir::L,), self + (Axis::DLUR, Dir::R)),
-        Adj::D2   => (self + (Axis::DLUR, Dir::L,), self + (Axis::ULDR, Dir::R)),
+        Adj::LR   => (self + (Adj::LR,   Dir::L,), self + (Adj::LR,   Dir::R,)),
+        Adj::ULDR => (self + (Adj::ULDR, Dir::L,), self + (Adj::ULDR, Dir::R,)),
+        Adj::DLUR => (self + (Adj::DLUR, Dir::L,), self + (Adj::DLUR, Dir::R,)),
+        Adj::U2   => (self + (Adj::ULDR, Dir::L,), self + (Adj::DLUR, Dir::R)),
+        Adj::D2   => (self + (Adj::DLUR, Dir::L,), self + (Adj::ULDR, Dir::R)),
     } }
 }
 impl Add<(Adj, Dir,)> for Coord {
