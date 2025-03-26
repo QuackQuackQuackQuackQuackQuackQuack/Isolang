@@ -1,5 +1,6 @@
 use crate::world::{ World, Cell, Adj };
 use std::fs::File;
+use rand::random;
 
 
 mod ins;
@@ -20,23 +21,43 @@ impl<C : Cell> ScriptRunner<C> {
 
 impl<C : Cell> ScriptRunner<C> {
 
-    fn binop(&mut self, adj : Adj, f : impl FnOnce(Cell, Cell) -> Cell) {
+    fn run_binop<F>(&mut self, adj : Adj, f : F)
+    where
+        F : FnOnce(C, C) -> C
+    {
         let head = self.world.head();
         let (l, r,) = head + adj;
-        self.world.insert(head, self.world.get(l) + self.world.get(r));
+        self.world.insert(head, f(self.world.get(l), self.world.get(r)));
     }
 
-    fn ins(&mut self, ins : Ins) { match (ins) {
+    pub fn run_ins(&mut self, ins : Ins) { match (ins) {
 
         Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (adj, dir,); },
 
-        Ins::Add { adj } => { self.binop(adj, |a, b| a + b); },
+        Ins::Add { adj } => { self.run_binop(adj, |a, b| a + b); },
 
-        Ins::Sub { adj } => { self.binop(adj, |a, b| a - b); },
+        Ins::Sub { adj } => { self.run_binop(adj, |a, b| a - b); },
 
-        Ins::Mul { adj } => { self.binop(adj, |a, b| a * b); },
+        Ins::Mul { adj } => { self.run_binop(adj, |a, b| a * b); },
 
-        Ins::Div { adj } => { self.binop(adj, |a, b| a / b); },
+        Ins::SDiv { adj } => { self.run_binop(adj, |a, b| a / b); },
+
+        Ins::IfNotZeroCond { ins } => {
+            if (! self.world.get(self.world.head()).is_zero()) {
+                self.run_ins(*ins);
+            }
+        },
+
+        Ins::IfZeroCond { ins } => {
+            if (self.world.get(self.world.head()).is_zero()) {
+                self.run_ins(*ins);
+            }
+        },
+
+        Ins::RandomlyChoose { options } => {
+            if (random::<bool>()) { self.run_ins(options.0); }
+            else                  { self.run_ins(options.1); }
+        }
 
     } }
 

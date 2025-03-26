@@ -2,7 +2,13 @@ use crate::world::{ Adj, Dir };
 
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
-pub enum InsMod {
+pub struct InsMod {
+    pub kind         : InsModKind,
+    pub random_maybe : bool
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+pub enum InsModKind {
     Invert,
     IfNotZeroCond
 }
@@ -24,35 +30,47 @@ pub enum Ins {
 
     SDiv { adj : Adj },
 
+    IfNotZeroCond { ins : Box<Ins> },
+
     IfZeroCond { ins : Box<Ins> },
 
-    IfNotZeroCond { ins : Box<Ins> }
+    RandomlyChoose { options : Box<(Ins, Ins)> }
 
 }
 
 impl Ins {
 
-    pub fn invert(self) -> Self { match (self) {
+    pub fn invert(self) -> Result<Self, ()> { match (self) {
 
-        Self::MoveHead { adj, dir } => Self::MoveHead { adj, dir : -dir },
+        Self::MoveHead { adj, dir } => Ok(Self::MoveHead { adj, dir : -dir }),
 
-        Self::Add { adj } => Self::Sub { adj },
+        Self::Add { adj } => Ok(Self::Sub { adj }),
 
-        Self::Sub { adj } => Self::Add { adj },
+        Self::Sub { adj } => Ok(Self::Add { adj }),
 
-        Self::Mul { adj } => Self::SDiv { adj },
+        Self::Mul { adj } => Ok(Self::SDiv { adj }),
 
-        Self::SDiv { adj } => Self::Mul { adj },
+        Self::SDiv { adj } => Ok(Self::Mul { adj }),
 
-        Self::IfZeroCond { ins } => Self::IfNotZeroCond { ins },
+        Self::IfZeroCond { ins } => Ok(Self::IfNotZeroCond { ins }),
 
-        Self::IfNotZeroCond { ins } => Self::IfZeroCond { ins }
+        Self::IfNotZeroCond { ins } => Ok(Self::IfZeroCond { ins }),
+
+        Self::RandomlyChoose { .. } => Err(())
 
     } }
 
-    pub fn modifier(self, modifier : InsMod) -> Self { match (modifier) {
-        InsMod::Invert        => self.invert(),
-        InsMod::IfNotZeroCond => Self::IfNotZeroCond { ins : Box::new(self) }
-    } }
+
+    pub fn modify(self, modifier : InsMod) -> Result<Self, ()> {
+        let ins = match (modifier.kind) {
+            InsModKind::Invert        => self.clone().invert(),
+            InsModKind::IfNotZeroCond => Ok(Self::IfNotZeroCond { ins : Box::new(self.clone()) })
+        }?;
+        Ok(if (modifier.random_maybe) {
+            Ins::RandomlyChoose { options : Box::new((self, ins,)) }
+        } else {
+            ins
+        })
+    }
 
 }

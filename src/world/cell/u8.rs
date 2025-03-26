@@ -40,7 +40,9 @@ impl Div for U8Cell {
     }
 }
 
-impl Cell for U8Cell { }
+impl Cell for U8Cell {
+    fn is_zero(&self) -> bool { self.0 == 0 }
+}
 
 impl fmt::Display for U8Cell {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {

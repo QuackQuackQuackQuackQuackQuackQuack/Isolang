@@ -40,7 +40,9 @@ impl Div for U32Cell {
     }
 }
 
-impl Cell for U32Cell { }
+impl Cell for U32Cell {
+    fn is_zero(&self) -> bool { self.0 == 0 }
+}
 
 impl fmt::Display for U32Cell {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
