@@ -1,6 +1,7 @@
 use core::ops::Neg;
 
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum Dir {
     L,
     R

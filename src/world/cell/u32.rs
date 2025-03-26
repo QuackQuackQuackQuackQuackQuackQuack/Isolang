@@ -1,5 +1,5 @@
 use crate::world::Cell;
-use core::ops::Add;
+use core::ops::{ Add, Sub, Mul, Div };
 use core::fmt;
 
 
@@ -16,6 +16,27 @@ impl Add for U32Cell {
     type Output = Self;
     fn add(self, rhs : Self) -> Self::Output {
         Self(self.0 + rhs.0)
+    }
+}
+
+impl Sub for U32Cell {
+    type Output = Self;
+    fn sub(self, rhs : Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl Mul for U32Cell {
+    type Output = Self;
+    fn mul(self, rhs : Self) -> Self::Output {
+        Self(self.0 * rhs.0)
+    }
+}
+
+impl Div for U32Cell {
+    type Output = Self;
+    fn div(self, rhs : Self) -> Self::Output {
+        Self(self.0 / rhs.0)
     }
 }
 

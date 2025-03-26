@@ -1,6 +1,7 @@
 use crate::world::Axis;
 
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum Adj {
 
     //  - -

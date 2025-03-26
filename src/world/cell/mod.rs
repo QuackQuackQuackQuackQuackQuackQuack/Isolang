@@ -1,5 +1,5 @@
 use core::fmt;
-use core::ops::Add;
+use core::ops::{ Add, Sub, Mul, Div };
 
 
 mod u8;
@@ -10,4 +10,14 @@ pub use u32::U32Cell;
 
 
 
-pub trait Cell : PartialEq + Clone + Copy + Default + fmt::Display + Add<Output = Self> { }
+pub trait Cell
+where Self
+    : PartialEq
+    + Clone + Copy
+    + Default
+    + fmt::Display
+    + Add<Self, Output = Self>
+    + Sub<Self, Output = Self>
+    + Mul<Self, Output = Self>
+    + Div<Self, Output = Self>
+{ }

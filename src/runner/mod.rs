@@ -1,4 +1,4 @@
-use crate::world::{ World, Cell };
+use crate::world::{ World, Cell, Adj };
 use std::fs::File;
 
 
@@ -20,15 +20,23 @@ impl<C : Cell> ScriptRunner<C> {
 
 impl<C : Cell> ScriptRunner<C> {
 
+    fn binop(&mut self, adj : Adj, f : impl FnOnce(Cell, Cell) -> Cell) {
+        let head = self.world.head();
+        let (l, r,) = head + adj;
+        self.world.insert(head, self.world.get(l) + self.world.get(r));
+    }
+
     fn ins(&mut self, ins : Ins) { match (ins) {
 
         Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (adj, dir,); },
 
-        Ins::Add { adj } => {
-            let head = self.world.head();
-            let (l, r,) = head + adj;
-            self.world.insert(head, self.world.get(l) + self.world.get(r));
-        }
+        Ins::Add { adj } => { self.binop(adj, |a, b| a + b); },
+
+        Ins::Sub { adj } => { self.binop(adj, |a, b| a - b); },
+
+        Ins::Mul { adj } => { self.binop(adj, |a, b| a * b); },
+
+        Ins::Div { adj } => { self.binop(adj, |a, b| a / b); },
 
     } }
 
