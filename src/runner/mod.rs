@@ -24,6 +24,7 @@ impl<C : Cell> ScriptRunner<C> {
 
 impl<C : Cell> ScriptRunner<C> {
 
+    /// Runs the function `f` on the two cells currently targeted by `adj`.
     fn run_binop<F>(&mut self, adj : Adj, f : F)
     where
         F : FnOnce(C, C) -> C
@@ -33,6 +34,8 @@ impl<C : Cell> ScriptRunner<C> {
         self.world.insert(head, f(self.world.get(l), self.world.get(r)));
     }
 
+
+    /// Runs an instruction in this `World`.
     pub fn run_ins(&mut self, ins : Ins) { match (ins) {
 
         Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (adj, dir,); },
