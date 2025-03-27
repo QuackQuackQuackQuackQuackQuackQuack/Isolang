@@ -1,14 +1,22 @@
+//! The Isolang instruction set.
+
+
 use crate::world::{ Adj, Dir };
 
 
-/// Instruction modifier
+/// A modifier for an instruction.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct InsMod {
+
+    /// The kind of instruction modifier.
     pub kind         : InsModKind,
+
+    /// If `true`, randomly choose whether this instruction is run or not.
     pub random_maybe : bool
+
 }
 
-/// Instruction modifier kind
+/// The kind of modifier for an instruction.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum InsModKind {
 
@@ -21,56 +29,84 @@ pub enum InsModKind {
 }
 
 
-/// Instruction
+/// A runnable instruction and its arguments.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Ins {
 
     /// Moves the head left or right a single cell on an adj.
     MoveHeadOne {
+        /// The adj to move along.
         adj : Adj,
+        /// Whether to move left or right.
         dir : Dir
     },
 
     /// Moves the head left or right some number of cells on an adj.
     /// The distance depends on the value in the cell at the world head.
     MoveHeadDynamic { 
+        /// The adj to move along.
         adj : Adj,
+        /// Whether to move left or right.
         dir : Dir
     },
 
     /// Adds the two cells targeted by the adj and stores it at the world head.
-    Add { adj : Adj },
+    Add {
+        /// The adj on which the two cells fall.
+        adj : Adj
+    },
 
     /// Subtracts the two cells targeted by the adj (left minus right) and stores it at the world head.
-    Sub { adj : Adj },
+    Sub {
+        /// The adj on which the two cells fall.
+        adj : Adj
+    },
 
     /// Multiplies the two cells targeted by the adj and stores it at the world head.
-    Mul { adj : Adj },
+    Mul {
+        /// The adj on which the two cells fall.
+        adj : Adj
+    },
 
     /// Signed integer divides the two cells targeted by the adj (left divided by right) and stores it at the world head.
-    SDiv { adj : Adj },
+    SDiv {
+        /// The adj on which the two cells fall.
+        adj : Adj
+    },
 
     /// Swaps the two cells targeted by the adj.
-    Swap { adj : Adj },
+    Swap {
+        /// The adj on which the two cells fall.
+        adj : Adj
+    },
 
     /// Does nothing, but counts towards the instruction length.
     Noop,
 
     /// Runs the contained instruction if the cell at the world head is not zero.
-    IfNotZeroCond { ins : Box<Ins> },
+    IfNotZeroCond {
+        /// The instruction to conditionally run.
+        ins : Box<Ins>
+    },
 
     /// Runs the contained instruction if the cell at the world head is zero.
-    IfZeroCond { ins : Box<Ins> },
+    IfZeroCond {
+        /// The instruction to conditionally run.
+        ins : Box<Ins>
+    },
 
     /// Runs one of two contained instruction at random.
-    RandomlyChoose { options : Box<(Ins, Ins)> }
+    RandomlyChoose {
+        /// The two instructions to randomly choose between.
+        options : Box<(Ins, Ins)>
+    }
 
 }
 
 impl Ins {
 
     /// Inverts the instruction.
-    pub fn invert(self) -> Result<Self, ()> { match (self) {
+    pub fn invert(self) -> Result<Self, BadInvertError> { match (self) {
 
         Self::MoveHeadOne { adj, dir } => Ok(Self::MoveHeadOne { adj, dir : -dir }),
 
@@ -84,21 +120,21 @@ impl Ins {
 
         Self::SDiv { adj } => Ok(Self::Mul { adj }),
 
-        Self::Swap { .. } => Err(()),
+        Self::Swap { .. } => Err(BadInvertError),
 
-        Self::Noop => Err(()),
+        Self::Noop => Err(BadInvertError),
 
         Self::IfZeroCond { ins } => Ok(Self::IfNotZeroCond { ins }),
 
         Self::IfNotZeroCond { ins } => Ok(Self::IfZeroCond { ins }),
 
-        Self::RandomlyChoose { .. } => Err(())
+        Self::RandomlyChoose { .. } => Err(BadInvertError)
 
     } }
 
 
     /// Applies an instruction modifier to this instruction.
-    pub fn modify(self, modifier : InsMod) -> Result<Self, ()> {
+    pub fn modify(self, modifier : InsMod) -> Result<Self, BadInvertError> {
         let ins = match (modifier.kind) {
             InsModKind::Invert        => self.clone().invert(),
             InsModKind::IfNotZeroCond => Ok(Self::IfNotZeroCond { ins : Box::new(self.clone()) })
@@ -111,3 +147,7 @@ impl Ins {
     }
 
 }
+
+
+/// An instruction that can not be inverted was inverted.
+pub struct BadInvertError;

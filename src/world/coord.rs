@@ -1,15 +1,24 @@
+//! A position in a [`World`].
+
+
 use crate::world::{ Adj, Dir };
 use core::fmt;
 use core::ops::{ Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Neg, Index, IndexMut };
 
 
+/// A position in a [`World`].
+/// 
+/// Positive direction is right/up-left.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct Coord {
+    /// Number of cells to the right direction.
     r  : isize,
+    /// Number of cells to the up-left direction/
     ul : isize
 }
 
 impl Coord {
+    /// [`World`] origin.
     pub const ZERO : Self = Self { r : 0, ul : 0 };
 }
 

@@ -1,29 +1,48 @@
+//! Pairs of adjacent cells in the [`World`].
+
+
+/// Pairs of adjacent cells in the [`World`].
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum Adj {
 
-    //  - -
-    // # @ #
-    //  - -
+    /// Left/right
+    /// ```
+    ///  . .
+    /// + @ +
+    ///  . .
+    /// ```
     LR,
 
-    //  # -
-    // - @ -
-    //  - #
+    /// Up-left/down-right
+    /// ```
+    ///  + .
+    /// . @ .
+    ///  . +
+    /// ```
     ULDR,
 
-    //  - #
-    // - @ -
-    //  # -
+    /// Down-left/up-right
+    /// ```
+    ///  . +
+    /// . @ .
+    ///  + .
+    /// ```
     DLUR,
 
-    //  # #
-    // - @ -
-    //  - -
+    /// Up-left/up-right
+    /// ```
+    ///  + +
+    /// . @ .
+    ///  . .
+    /// ```
     U2,
 
-    //  - -
-    // - @ -
-    //  # #
+    /// Down-left/down-right
+    /// ```
+    ///  . .
+    /// . @ .
+    ///  + +
+    /// ```
     D2
 
 }

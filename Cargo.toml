@@ -10,3 +10,7 @@ version = "0.9"
 
 [lints.rust]
 unused_parens = "allow"
+missing_docs  = "forbid"
+
+[lints.clippy]
+missing_docs_in_private_items = "forbid"

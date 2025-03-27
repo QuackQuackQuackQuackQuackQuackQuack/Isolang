@@ -1,3 +1,9 @@
+//! # Isolang
+//! Parser & Interpreter
+//! 
+//! TODO: Crate docs
+
+
 use std::fs::File;
 use std::io::{ Read, BufReader };
 

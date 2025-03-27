@@ -1,14 +1,26 @@
+//! Isolang script parser.
+
+
 use crate::world::{ Adj, Dir };
 use crate::runner::ins::{ Ins, InsMod, InsModKind };
 use std::io;
 use std::iter::Peekable;
 
 
+/// Isolang script parser.
 pub struct ScriptParser<F : Iterator<Item = io::Result<u8>>> {
+    /// An iterator over the bytes to parse.
     f : Peekable<F>
 }
 
 impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
+
+    /// Parse a script into a [`Vec`] of instructions.
+    /// 
+    /// ### Returns
+    /// Returns:
+    /// - `Ok(_)` if the script was successfully parsed.
+    /// - `Err(_)` if some other error occured.
     pub fn parse(f : F) -> Result<Vec<Ins>, ParseError> {
         let mut parser = Self { f : f.peekable() };
         let mut script = Vec::new();
@@ -17,6 +29,7 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
         }
         Ok(script)
     }
+
 }
 
 
@@ -28,7 +41,7 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     /// Returns
     /// - `Ok(Some(_))` if a character was found.
     /// - `Ok(None)` if the end of the file has been reached.
-    /// - `Err(_)` if some other error has occured.
+    /// - `Err(_)` if some other error occured.
     fn next_char(&mut self) -> Result<Option<char>, ParseError> {
         let Some(ch) = self.f.next()
             else { return Ok(None); };
@@ -41,7 +54,7 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     /// Returns
     /// - `Ok(Some(_))` if a character was found.
     /// - `Ok(None)` if the end of the file has been reached.
-    /// - `Err(_)` if some other error has occured.
+    /// - `Err(_)` if some other error occured.
     /// 
     /// *Note: If this returns `Err(_)`, the item will be marked as read.*
     fn peek_char(&mut self) -> Result<Option<char>, ParseError> {
@@ -53,6 +66,9 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     }
 
     /// Marks the next character as read.
+    /// 
+    /// ### Returns
+    /// Returns `Err(_)` if some other error occured.
     fn skip_char(&mut self) -> Result<(), ParseError> {
         let _ = self.next_char()?;
         Ok(())
@@ -88,11 +104,21 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     }
 
     /// Parses a single adj (axis) character.
+    /// 
+    /// ### Returns
+    /// Returns:
+    /// - `Ok(_)` if an adj was successfully parsed.
+    /// - `Err(_)` if some other error occured.
     fn parse_adj(&mut self) -> Result<Adj, ParseError> {
         todo!()
     }
 
     /// Parses a single left/right direction character.
+    /// 
+    /// ### Returns
+    /// Returns:
+    /// - `Ok(_)` if a dir was successfully parsed.
+    /// - `Err(_)` if some other error occured.
     fn parse_dir(&mut self) -> Result<Dir, ParseError> {
         todo!()
     }
@@ -150,10 +176,11 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
 }
 
 
+/// An error raised while parsing an Isolang script.
 #[derive(Debug)]
 pub enum ParseError {
 
-    /// Some IO-related error has occured.
+    /// Some IO-related error occured.
     Io(io::Error),
 
     /// The end of the file was found, but not all required arguments were provided.
@@ -163,7 +190,7 @@ pub enum ParseError {
     BadChar(char)
 }
 
-/// Allows using the `?` operator on `Err(io::Error)` types to auto-convert them to `ParseError`.
+/// Allows using the `?` operator on `Err(io::Error)` types to auto-convert them to [`ParseError`].
 impl From<io::Error> for ParseError {
     fn from(err : io::Error) -> Self { Self::Io(err) }
 }

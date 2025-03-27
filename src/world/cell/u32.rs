@@ -1,8 +1,12 @@
+//! A cell containing a [`u8`].
+
+
 use crate::world::Cell;
 use core::ops::{ Add, Sub, Mul, Div };
 use core::fmt;
 
 
+/// A cell containing a [`u32`].
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(transparent)]
 pub struct U32Cell(u32);

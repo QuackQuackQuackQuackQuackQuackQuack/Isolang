@@ -1,9 +1,15 @@
+//! A sideways direction in the [`World`].
+
+
 use core::ops::Neg;
 
 
+/// A sideways direction in the [`World`].
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum Dir {
+    /// Left
     L,
+    /// Right
     R
 }
 

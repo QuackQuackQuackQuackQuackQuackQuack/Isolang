@@ -1,3 +1,6 @@
+//! Isolang script runner.
+
+
 use crate::world::{ World, Cell, Adj };
 use rand::random;
 
@@ -6,23 +9,39 @@ pub mod ins;
 use ins::Ins;
 
 
+/// Isolang script runner.
 pub struct ScriptRunner<C : Cell> {
+
+    /// The instructions in the script.
     script : Vec<Ins>,
+
+    /// The current running state.
     state  : ScriptRunnerState<C>
+
 }
+
+/// The state of a [`ScriptRunner`].
 struct ScriptRunnerState<C : Cell> {
+
+    /// The script running head.
     script_head : usize,
+
+    /// The world to run on.
     world       : World<C>
+
 }
 
 impl<C : Cell> ScriptRunner<C> {
+
+    /// Construct a new runner from a [`Vec`] of instructions.
     pub fn new(script : Vec<Ins>) -> Self { Self {
         script,
         state : ScriptRunnerState {
             script_head : 0,
-            world       : World::new()
+            world       : World::default()
         }
     } }
+
 }
 
 
@@ -54,7 +73,7 @@ impl<C : Cell> ScriptRunnerState<C> {
     }
 
 
-    /// Runs a single instruction in this `World`.
+    /// Runs a single instruction in this [`World`].
     pub fn run_ins(&mut self, ins : &Ins) { match (ins) {
 
         Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },

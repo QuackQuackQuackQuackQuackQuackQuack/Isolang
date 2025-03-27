@@ -1,3 +1,6 @@
+//! Cell traits and types.
+
+
 use core::fmt;
 use core::ops::{ Add, Sub, Mul, Div };
 
@@ -10,6 +13,7 @@ pub use u32::U32Cell;
 
 
 
+/// A cell that can be in a [`World`].
 pub trait Cell
 where Self
     : PartialEq
@@ -22,6 +26,10 @@ where Self
     + Div<Self, Output = Self>
 {
 
+    /// Whether this cell is zero.
+    /// 
+    /// ### Returns
+    /// - Returns `self == 0`.
     fn is_zero(&self) -> bool;
 
 }
