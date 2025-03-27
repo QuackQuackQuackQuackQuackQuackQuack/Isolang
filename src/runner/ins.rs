@@ -33,6 +33,15 @@ pub enum Ins {
 
     SDiv { adj : Adj },
 
+    Swap { adj : Adj },
+
+    JumpThroughWorld { 
+        adj : Adj,
+        dir : Dir
+    },
+
+    Noop,
+
     IfNotZeroCond { ins : Box<Ins> },
 
     IfZeroCond { ins : Box<Ins> },
@@ -57,6 +66,10 @@ impl Ins {
         Self::Mul { adj } => Ok(Self::SDiv { adj }),
 
         Self::SDiv { adj } => Ok(Self::Mul { adj }),
+
+        Self::Swap { .. } => Err(()),
+
+        Self::Noop => Err(()),
 
         Self::IfZeroCond { ins } => Ok(Self::IfNotZeroCond { ins }),
 
