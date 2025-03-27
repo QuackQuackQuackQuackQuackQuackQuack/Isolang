@@ -37,9 +37,7 @@ pub enum Ins {
 
     IfZeroCond { ins : Box<Ins> },
 
-    RandomlyChoose { options : Box<(Ins, Ins)> },
-
-    Exit
+    RandomlyChoose { options : Box<(Ins, Ins)> }
 
 }
 
@@ -62,9 +60,7 @@ impl Ins {
 
         Self::IfNotZeroCond { ins } => Ok(Self::IfZeroCond { ins }),
 
-        Self::RandomlyChoose { .. } => Err(()),
-
-        Self::Exit { .. } => unreachable!()
+        Self::RandomlyChoose { .. } => Err(())
 
     } }
 

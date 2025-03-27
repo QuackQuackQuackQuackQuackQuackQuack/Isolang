@@ -1,30 +1,49 @@
 use crate::world::{ World, Cell, Adj };
-use std::fs::File;
 use rand::random;
 
 
 pub mod ins;
 use ins::Ins;
 
-mod parser;
-
 
 pub struct ScriptRunner<C : Cell> {
-    f     : File,
-    world : World<C>,
-    code_head : usize
+    script : Vec<Ins>,
+    state  : ScriptRunnerState<C>
+}
+struct ScriptRunnerState<C : Cell> {
+    script_head : usize,
+    world       : World<C>
 }
 
 impl<C : Cell> ScriptRunner<C> {
-    pub fn new(f : File) -> Self {
-        Self { f, world : World::new() , code_head : 0}
+    pub fn new(script : Vec<Ins>) -> Self { Self {
+        script,
+        state : ScriptRunnerState {
+            script_head : 0,
+            world       : World::new()
+        }
+    } }
+}
+
+
+impl<C : Cell> ScriptRunner<C> {
+
+    /// Runs the next step in the script.
+    /// 
+    /// ### Returns
+    /// Returns `false` if the program has finished.
+    pub fn run_next(&mut self) -> bool {
+        let Some(ins) = self.script.get(self.state.script_head)
+            else { return false; };
+        self.state.run_ins(ins);
+        true
     }
+
 }
 
+impl<C : Cell> ScriptRunnerState<C> {
 
-impl<C : Cell> ScriptRunner<C> {
-
-    /// Runs the function `f` on the two cells currently targeted by `adj`.
+    /// Calls the function `f` on the two cells currently targeted by `adj`.
     fn run_binop<F>(&mut self, adj : Adj, f : F)
     where
         F : FnOnce(C, C) -> C
@@ -35,34 +54,34 @@ impl<C : Cell> ScriptRunner<C> {
     }
 
 
-    /// Runs an instruction in this `World`.
-    pub fn run_ins(&mut self, ins : Ins) { match (ins) {
+    /// Runs a single instruction in this `World`.
+    pub fn run_ins(&mut self, ins : &Ins) { match (ins) {
 
-        Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (adj, dir,); },
+        Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
 
-        Ins::Add { adj } => { self.run_binop(adj, |a, b| a + b); },
+        Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
-        Ins::Sub { adj } => { self.run_binop(adj, |a, b| a - b); },
+        Ins::Sub { adj } => { self.run_binop(*adj, |a, b| a - b); },
 
-        Ins::Mul { adj } => { self.run_binop(adj, |a, b| a * b); },
+        Ins::Mul { adj } => { self.run_binop(*adj, |a, b| a * b); },
 
-        Ins::SDiv { adj } => { self.run_binop(adj, |a, b| a / b); },
+        Ins::SDiv { adj } => { self.run_binop(*adj, |a, b| a / b); },
 
         Ins::IfNotZeroCond { ins } => {
             if (! self.world.get(self.world.head()).is_zero()) {
-                self.run_ins(*ins);
+                self.run_ins(ins);
             }
         },
 
         Ins::IfZeroCond { ins } => {
             if (self.world.get(self.world.head()).is_zero()) {
-                self.run_ins(*ins);
+                self.run_ins(ins);
             }
         },
 
         Ins::RandomlyChoose { options } => {
-            if (random::<bool>()) { self.run_ins(options.0); }
-            else                  { self.run_ins(options.1); }
+            if (random::<bool>()) { self.run_ins(&options.0); }
+            else                  { self.run_ins(&options.1); }
         }
 
     } }
