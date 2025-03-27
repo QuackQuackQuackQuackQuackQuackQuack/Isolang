@@ -64,10 +64,27 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
 impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
 
     /// Parses a single instruction, including its arguments and modifiers.
+    /// 
+    /// # Returns
+    /// Returns
+    /// - `Ok(Some(_))` if an instruction was successfully parsed.
+    /// - `Ok(None)` if there is no instruction.
+    /// - `Err(_)` if some other error occured.
     fn parse_ins(&mut self) -> Result<Option<Ins>, ParseError> {
-        let Some(ch) = self.next_char()?
-            else { return Ok(None); };
-        match (ch) {}
+        loop {
+            let Some(ch) = self.next_char()?
+                else { return Ok(None); };
+            return Ok(Some(match (ch) {
+                '+' => Ins::Add { adj : self.parse_adj()? },
+                '*' => Ins::Mul { adj : self.parse_adj()? },
+                '~' => Ins::Swap { adj : self.parse_adj()? },
+                '<' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::L },
+                '>' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::R },
+                ':' => todo!(),
+                ';' => todo!(),
+                _   => { continue; }
+            }));
+        }
     }
 
     /// Parses a single adj (axis) character.
@@ -126,7 +143,7 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
             _   => { return Ok(None); }
         };
         // If the character was a valid modifier kind, mark it as read.
-        self.skip_char();
+        self.skip_char()?;
         Ok(Some(ins_mod_kind))
     }
 

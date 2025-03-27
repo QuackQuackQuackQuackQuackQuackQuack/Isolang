@@ -11,8 +11,13 @@ pub struct InsMod {
 /// Instruction modifier kind
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum InsModKind {
+
+    /// Inverts an instruction.
     Invert,
+
+    /// Makes the instruction only run if the cell at the world head is not zero.
     IfNotZeroCond
+
 }
 
 
@@ -20,23 +25,44 @@ pub enum InsModKind {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub enum Ins {
 
-    MoveHead {
+    /// Moves the head left or right a single cell on an adj.
+    MoveHeadOne {
         adj : Adj,
         dir : Dir
     },
 
+    /// Moves the head left or right some number of cells on an adj.
+    /// The distance depends on the value in the cell at the world head.
+    MoveHeadDynamic { 
+        adj : Adj,
+        dir : Dir
+    },
+
+    /// Adds the two cells targeted by the adj and stores it at the world head.
     Add { adj : Adj },
 
+    /// Subtracts the two cells targeted by the adj (left minus right) and stores it at the world head.
     Sub { adj : Adj },
 
+    /// Multiplies the two cells targeted by the adj and stores it at the world head.
     Mul { adj : Adj },
 
+    /// Signed integer divides the two cells targeted by the adj (left divided by right) and stores it at the world head.
     SDiv { adj : Adj },
 
+    /// Swaps the two cells targeted by the adj.
+    Swap { adj : Adj },
+
+    /// Does nothing, but counts towards the instruction length.
+    Noop,
+
+    /// Runs the contained instruction if the cell at the world head is not zero.
     IfNotZeroCond { ins : Box<Ins> },
 
+    /// Runs the contained instruction if the cell at the world head is zero.
     IfZeroCond { ins : Box<Ins> },
 
+    /// Runs one of two contained instruction at random.
     RandomlyChoose { options : Box<(Ins, Ins)> }
 
 }
@@ -46,7 +72,9 @@ impl Ins {
     /// Inverts the instruction.
     pub fn invert(self) -> Result<Self, ()> { match (self) {
 
-        Self::MoveHead { adj, dir } => Ok(Self::MoveHead { adj, dir : -dir }),
+        Self::MoveHeadOne { adj, dir } => Ok(Self::MoveHeadOne { adj, dir : -dir }),
+
+        Self::MoveHeadDynamic { adj, dir } => Ok(Self::MoveHeadDynamic { adj, dir : -dir }),
 
         Self::Add { adj } => Ok(Self::Sub { adj }),
 
@@ -55,6 +83,10 @@ impl Ins {
         Self::Mul { adj } => Ok(Self::SDiv { adj }),
 
         Self::SDiv { adj } => Ok(Self::Mul { adj }),
+
+        Self::Swap { .. } => Err(()),
+
+        Self::Noop => Err(()),
 
         Self::IfZeroCond { ins } => Ok(Self::IfNotZeroCond { ins }),
 

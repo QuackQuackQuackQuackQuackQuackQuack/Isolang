@@ -57,7 +57,9 @@ impl<C : Cell> ScriptRunnerState<C> {
     /// Runs a single instruction in this `World`.
     pub fn run_ins(&mut self, ins : &Ins) { match (ins) {
 
-        Ins::MoveHead { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
+        Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
+
+        Ins::MoveHeadDynamic { adj, dir } => todo!(),
 
         Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
@@ -66,6 +68,10 @@ impl<C : Cell> ScriptRunnerState<C> {
         Ins::Mul { adj } => { self.run_binop(*adj, |a, b| a * b); },
 
         Ins::SDiv { adj } => { self.run_binop(*adj, |a, b| a / b); },
+
+        Ins::Swap { adj } => todo!(),
+
+        Ins::Noop => { },
 
         Ins::IfNotZeroCond { ins } => {
             if (! self.world.get(self.world.head()).is_zero()) {
