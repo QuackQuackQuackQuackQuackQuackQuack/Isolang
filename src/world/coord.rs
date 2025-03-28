@@ -106,3 +106,9 @@ impl IndexMut<Dir> for (Coord, Coord,) {
         Dir::R => &mut self.1
     } }
 }
+
+impl From<(Adj, Dir,)> for Coord {
+    fn from(value : (Adj, Dir,)) -> Self {
+        Coord::ZERO + value
+    }
+}
