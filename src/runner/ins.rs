@@ -83,6 +83,12 @@ pub enum Ins {
     /// Does nothing, but counts towards the instruction length.
     Noop,
 
+    /// Jumps through code a number of instructions equal to the current cell.
+    /// Direction: R is forward in code, L is backward in code
+    JumpThruCode {
+        dir : Dir
+    },
+
     /// Runs the contained instruction if the cell at the world head is not zero.
     IfNotZeroCond {
         /// The instruction to conditionally run.
@@ -100,7 +106,6 @@ pub enum Ins {
         /// The two instructions to randomly choose between.
         options : Box<(Ins, Ins)>
     }
-
 }
 
 impl Ins {
@@ -123,6 +128,8 @@ impl Ins {
         Self::Swap { .. } => Err(BadInvertError),
 
         Self::Noop => Err(BadInvertError),
+
+        Self::JumpThruCode { dir } => Ok(Self::JumpThruCode { dir: -dir }),
 
         Self::IfZeroCond { ins } => Ok(Self::IfNotZeroCond { ins }),
 
