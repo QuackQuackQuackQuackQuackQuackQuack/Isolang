@@ -94,10 +94,9 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
                 '+' => Ins::Add { adj : self.parse_adj()? },
                 '*' => Ins::Mul { adj : self.parse_adj()? },
                 '~' => Ins::Swap { adj : self.parse_adj()? },
-                '<' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::L },
                 '>' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::R },
-                ':' => todo!(),
-                ';' => todo!(),
+                ';' => Ins::MoveHeadDynamic { adj: self.parse_adj()?, dir: Dir::R },
+                ':' => Ins::JumpThruCode { dir: Dir::R },
                 _   => { continue; }
             }));
         }
@@ -110,7 +109,16 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     /// - `Ok(_)` if an adj was successfully parsed.
     /// - `Err(_)` if some other error occured.
     fn parse_adj(&mut self) -> Result<Adj, ParseError> {
-        todo!()
+        let Some(ch) = self.next_char()?
+            else { return Err(ParseError::BadEOF); };
+        return Ok(match (ch) {
+            '\\' => Adj::ULDR,
+            '/' => Adj::DLUR,
+            '-' => Adj::LR,
+            '^' => Adj::D2,
+            'v' => Adj::U2,
+            _ => todo!()
+        });
     }
 
     /// Parses a single left/right direction character.
