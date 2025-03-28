@@ -1,6 +1,7 @@
 //! Worlds contain the cell grid and world head.
 
 
+use core::ops::{ Deref, DerefMut };
 use std::collections::BTreeMap;
 
 
@@ -53,6 +54,16 @@ impl<C : Cell> World<C> {
     pub fn get(&self, coord : Coord) -> C {
         self.cells.get(&coord).cloned().unwrap_or(C::default())
     }
+
+    /// Get a mutable reference to a cell in the world by coordinate.
+    pub fn get_mut(&mut self, coord : Coord) -> CellMut<C> {
+        CellMut {
+            cell  : self.get(coord),
+            world : self,
+            coord
+        }
+    }
+
     /// Overwrites a cell in the world.
     pub fn insert(&mut self, coord : Coord, cell : C) {
         // TODO: Stdin/stdout
@@ -63,4 +74,40 @@ impl<C : Cell> World<C> {
         }
     }
 
+}
+
+
+/// Mutable access to a cell in a [`World`].
+///
+/// *Note: Changes to the [`World`] are applied when this is dropped.*
+pub struct CellMut<'l, C : Cell> {
+
+    /// The current value of the cell, not yet written to the [`World`].
+    cell  : C,
+
+    /// The [`World`] to apply to.
+    world : &'l mut World<C>,
+
+    /// The coordinate of the cell in question.
+    coord : Coord
+
+}
+
+impl<'l, C : Cell> Deref for CellMut<'l, C> {
+    type Target = C;
+    fn deref(&self) -> &Self::Target {
+        &self.cell
+    }
+}
+
+impl<'l, C : Cell> DerefMut for CellMut<'l, C> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.cell
+    }
+}
+
+impl<'l, C : Cell> Drop for CellMut<'l, C> {
+    fn drop(&mut self) {
+        self.world.insert(self.coord, self.cell);
+    }
 }
