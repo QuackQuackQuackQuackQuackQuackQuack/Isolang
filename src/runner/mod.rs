@@ -1,7 +1,7 @@
 //! Isolang script runner.
 
 
-use crate::world::{ World, Cell, Adj };
+use crate::world::{ World, Cell, Adj, Coord };
 use rand::random;
 
 
@@ -78,8 +78,8 @@ impl<C : Cell> ScriptRunnerState<C> {
 
         Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
 
-        Ins::MoveHeadDynamic { adj, dir } => { *self.world.head_mut() += self.world.get(self.world.head()).get_usize_val() * 
-        (*adj, *dir)},
+        Ins::MoveHeadDynamic { adj, dir } => { *self.world.head_mut() += 
+            Coord::from((*adj, *dir)) * self.world.get(self.world.head()).get_usize_val() as isize},
 
         Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
