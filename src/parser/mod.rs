@@ -117,18 +117,8 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
             '-' => Adj::LR,
             '^' => Adj::D2,
             'v' => Adj::U2,
-            _ => todo!()
+            _ => return Err(ParseError::BadChar(ch))
         });
-    }
-
-    /// Parses a single left/right direction character.
-    /// 
-    /// ### Returns
-    /// Returns:
-    /// - `Ok(_)` if a dir was successfully parsed.
-    /// - `Err(_)` if some other error occured.
-    fn parse_dir(&mut self) -> Result<Dir, ParseError> {
-        todo!()
     }
 
     /// Parses a single instruction modifier, if it exists.

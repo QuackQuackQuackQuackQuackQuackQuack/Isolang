@@ -46,6 +46,10 @@ impl Div for U32Cell {
 
 impl Cell for U32Cell {
     fn is_zero(&self) -> bool { self.0 == 0 }
+    
+    fn get_usize_val(&self) -> usize {
+        self.0 as usize
+    }
 }
 
 impl fmt::Display for U32Cell {

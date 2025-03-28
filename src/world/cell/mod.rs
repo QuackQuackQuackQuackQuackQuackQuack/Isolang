@@ -32,4 +32,6 @@ where Self
     /// - Returns `self == 0`.
     fn is_zero(&self) -> bool;
 
+    /// Converts value to usize
+    fn get_usize_val(&self) -> usize;
 }

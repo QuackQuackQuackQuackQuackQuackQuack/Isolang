@@ -78,7 +78,8 @@ impl<C : Cell> ScriptRunnerState<C> {
 
         Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
 
-        Ins::MoveHeadDynamic { adj, dir } => todo!(),
+        Ins::MoveHeadDynamic { adj, dir } => { *self.world.head_mut() += self.world.get(self.world.head()).get_usize_val() * 
+        (*adj, *dir)},
 
         Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
@@ -88,7 +89,13 @@ impl<C : Cell> ScriptRunnerState<C> {
 
         Ins::SDiv { adj } => { self.run_binop(*adj, |a, b| a / b); },
 
-        Ins::Swap { adj } => todo!(),
+        Ins::Swap { adj } => {
+            let head = self.world.head();
+            let (l, r,) = head + *adj;
+            let save_l_val = self.world.get(l);
+            self.world.insert(l, self.world.get(r));
+            self.world.insert(r, save_l_val);
+        },
 
         Ins::Noop => { },
 
