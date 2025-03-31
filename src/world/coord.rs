@@ -112,3 +112,30 @@ impl From<(Adj, Dir,)> for Coord {
         Coord::ZERO + value
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn add_sub_coords() {
+        let a = Coord { r : 12, ul : 16 };
+        let b = Coord { r : 3,  ul : 31 };
+        assert_eq!(a + b, Coord { r : 15, ul :  47 });
+        assert_eq!(a - b, Coord { r : 9,  ul : -15 });
+    }
+
+    #[test]
+    fn mul_coord_scalar() {
+        assert_eq!(Coord { r : 12, ul : 16 } *  3, Coord { r :  36, ul :   48 });
+        assert_eq!(Coord { r : 3,  ul : 31 } * -4, Coord { r : -12, ul : -124 });
+    }
+
+    #[test]
+    fn neg_coord() {
+        assert_eq!(-Coord { r : 12, ul : 16 }, Coord { r : -12, ul : -16 });
+        assert_eq!(-Coord { r : 3,  ul : 31 }, Coord { r :  -3, ul : -31 });
+    }
+
+}
