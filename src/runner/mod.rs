@@ -116,6 +116,9 @@ impl<C : Cell> ScriptRunnerState<C> {
             else                  { self.run_ins(&options.1); }
         }
 
+        Ins::JumpThruCode { dir } => {
+            todo!();
+        }
     } }
 
 }
