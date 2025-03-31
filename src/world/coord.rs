@@ -20,6 +20,18 @@ pub struct Coord {
 impl Coord {
     /// [`World`] origin.
     pub const ZERO : Self = Self { r : 0, ul : 0 };
+    /// One unit left.
+    pub const L : Self = Self { r : -1, ul : 0 };
+    /// One unit right.
+    pub const R : Self = Self { r : 1, ul : 0 };
+    /// One unit up-left.
+    pub const UL : Self = Self { r : 0, ul : 1 };
+    /// One unit down-left.
+    pub const DL : Self = Self { r : -1, ul : -1 };
+    /// One unit up-right.
+    pub const UR : Self = Self { r : 1, ul : 1 };
+    /// One unit down-right.
+    pub const DR : Self = Self { r : 0, ul : -1 };
 }
 
 impl fmt::Debug for Coord {
@@ -74,11 +86,11 @@ impl Neg for Coord {
 impl Add<Adj> for Coord {
     type Output = (Self, Self,);
     fn add(self, adj : Adj) -> Self::Output { match (adj) {
-        Adj::LR   => (self + (Adj::LR,   Dir::L,), self + (Adj::LR,   Dir::R,)),
-        Adj::ULDR => (self + (Adj::ULDR, Dir::L,), self + (Adj::ULDR, Dir::R,)),
-        Adj::DLUR => (self + (Adj::DLUR, Dir::L,), self + (Adj::DLUR, Dir::R,)),
-        Adj::U2   => (self + (Adj::ULDR, Dir::L,), self + (Adj::DLUR, Dir::R)),
-        Adj::D2   => (self + (Adj::DLUR, Dir::L,), self + (Adj::ULDR, Dir::R)),
+        Adj::LR   => (self + Self::L,  self + Self::R  ),
+        Adj::ULDR => (self + Self::UL, self + Self::DR ),
+        Adj::DLUR => (self + Self::DL, self + Self::UR ),
+        Adj::U2   => (self + Self::UL, self + Self::UR ),
+        Adj::D2   => (self + Self::DL, self + Self::DR ),
     } }
 }
 impl Add<(Adj, Dir,)> for Coord {
@@ -121,21 +133,45 @@ mod tests {
     #[test]
     fn add_sub_coords() {
         let a = Coord { r : 12, ul : 16 };
-        let b = Coord { r : 3,  ul : 31 };
+        let b = Coord { r :  3, ul : 31 };
         assert_eq!(a + b, Coord { r : 15, ul :  47 });
-        assert_eq!(a - b, Coord { r : 9,  ul : -15 });
+        assert_eq!(a - b, Coord { r :  9, ul : -15 });
     }
 
     #[test]
     fn mul_coord_scalar() {
         assert_eq!(Coord { r : 12, ul : 16 } *  3, Coord { r :  36, ul :   48 });
-        assert_eq!(Coord { r : 3,  ul : 31 } * -4, Coord { r : -12, ul : -124 });
+        assert_eq!(Coord { r :  3, ul : 31 } * -4, Coord { r : -12, ul : -124 });
     }
 
     #[test]
     fn neg_coord() {
         assert_eq!(-Coord { r : 12, ul : 16 }, Coord { r : -12, ul : -16 });
-        assert_eq!(-Coord { r : 3,  ul : 31 }, Coord { r :  -3, ul : -31 });
+        assert_eq!(-Coord { r :  3, ul : 31 }, Coord { r :  -3, ul : -31 });
+    }
+
+    #[test]
+    fn add_coord_adj() {
+        assert_eq!(Coord { r : 12, ul : 16 } + Adj::LR,   (Coord { r : 11, ul : 16 }, Coord { r : 13, ul : 16 },));
+        assert_eq!(Coord { r :  3, ul : 31 } + Adj::LR,   (Coord { r :  2, ul : 31 }, Coord { r :  4, ul : 31 },));
+        assert_eq!(Coord { r : 12, ul : 16 } + Adj::ULDR, (Coord { r : 12, ul : 17 }, Coord { r : 12, ul : 15 },));
+        assert_eq!(Coord { r :  3, ul : 31 } + Adj::ULDR, (Coord { r :  3, ul : 32 }, Coord { r :  3, ul : 30 },));
+        assert_eq!(Coord { r : 12, ul : 16 } + Adj::DLUR, (Coord { r : 11, ul : 15 }, Coord { r : 13, ul : 17 },));
+        assert_eq!(Coord { r :  3, ul : 31 } + Adj::DLUR, (Coord { r :  2, ul : 30 }, Coord { r :  4, ul : 32 },));
+        assert_eq!(Coord { r : 12, ul : 16 } + Adj::U2,   (Coord { r : 12, ul : 17 }, Coord { r : 13, ul : 17 },));
+        assert_eq!(Coord { r :  3, ul : 31 } + Adj::U2,   (Coord { r :  3, ul : 32 }, Coord { r :  4, ul : 32 },));
+        assert_eq!(Coord { r : 12, ul : 16 } + Adj::D2,   (Coord { r : 11, ul : 15 }, Coord { r : 12, ul : 15 },));
+        assert_eq!(Coord { r :  3, ul : 31 } + Adj::D2,   (Coord { r :  2, ul : 30 }, Coord { r :  3, ul : 30 },));
+    }
+
+    #[test]
+    fn add_coord_adj_dir() {
+        // TODO
+    }
+    
+    #[test]
+    fn coord_coord_index_dir() {
+        // TODO
     }
 
 }
