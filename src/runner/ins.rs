@@ -84,8 +84,8 @@ pub enum Ins {
     Noop,
 
     /// Jumps through code a number of instructions equal to the current cell.
-    /// Direction: R is forward in code, L is backward in code
     JumpThruCode {
+        /// R is forward in code, L is backward in code
         dir : Dir
     },
 

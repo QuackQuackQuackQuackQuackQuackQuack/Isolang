@@ -78,8 +78,9 @@ impl<C : Cell> ScriptRunnerState<C> {
 
         Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
 
-        Ins::MoveHeadDynamic { adj, dir } => { *self.world.head_mut() += 
-            Coord::from((*adj, *dir)) * self.world.get(self.world.head()).get_usize_val() as isize},
+        Ins::MoveHeadDynamic { adj, dir } => { 
+            let cell_val = self.world.get(self.world.head()).get_usize_val() as isize;
+            *self.world.head_mut() += Coord::from((*adj, *dir)) * cell_val},
 
         Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
