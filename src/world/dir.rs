@@ -29,3 +29,23 @@ impl Neg for Dir {
         Self::R => Self::L
     } }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use super::*;
+
+    #[test]
+    fn neg_dir () {
+        assert_eq!(-Dir::L, Dir::R);
+        assert_eq!(-Dir::R, Dir::L);
+    }
+
+    #[test]
+    fn try_from_char_dir () {
+        assert_eq!(Dir::try_from('0'), Err(()));
+        assert_eq!(Dir::try_from('<'), Ok(Dir::L));
+        assert_eq!(Dir::try_from('>'), Ok(Dir::R));
+    }
+}

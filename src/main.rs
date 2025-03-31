@@ -3,6 +3,7 @@
 //! 
 //! TODO: Crate docs
 
+#![feature(assert_matches)]
 
 use std::fs::File;
 use std::io::{ Read, BufReader };
