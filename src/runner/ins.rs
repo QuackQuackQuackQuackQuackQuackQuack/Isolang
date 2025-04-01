@@ -26,6 +26,8 @@ pub enum InsModKind {
     /// Makes the instruction only run if the cell at the world head is not zero.
     IfNotZeroCond
 
+    // TODO add a random whether or not instruction (not modifier) is run
+
 }
 
 
@@ -158,3 +160,5 @@ impl Ins {
 
 /// An instruction that can not be inverted was inverted.
 pub struct BadInvertError;
+
+// TODO tests

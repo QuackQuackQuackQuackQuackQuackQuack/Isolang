@@ -111,3 +111,5 @@ impl<'l, C : Cell> Drop for CellMut<'l, C> {
         self.world.insert(self.coord, self.cell);
     }
 }
+
+// TODO test

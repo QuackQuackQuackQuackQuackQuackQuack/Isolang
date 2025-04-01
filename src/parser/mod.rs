@@ -192,3 +192,5 @@ pub enum ParseError {
 impl From<io::Error> for ParseError {
     fn from(err : io::Error) -> Self { Self::Io(err) }
 }
+
+// TODO tests
