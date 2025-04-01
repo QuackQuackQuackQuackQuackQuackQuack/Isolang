@@ -1,7 +1,7 @@
 //! Isolang script runner.
 
 
-use crate::world::{ World, Cell, Adj, Coord };
+use crate::world::{ World, Cell, Adj, Coord, Dir };
 use rand::random;
 
 
@@ -57,10 +57,11 @@ impl<C : Cell> ScriptRunner<C> {
         self.state.run_ins(ins);
         true
     }
-
 }
 
 impl<C : Cell> ScriptRunnerState<C> {
+
+
 
     /// Calls the function `f` on the two cells currently targeted by `adj`.
     fn run_binop<F>(&mut self, adj : Adj, f : F)
@@ -119,8 +120,13 @@ impl<C : Cell> ScriptRunnerState<C> {
         }
 
         Ins::JumpThruCode { dir } => {
-            todo!();
+            let cell_val = self.world.get(self.world.head()).get_usize_val();
+            match (dir) {
+                Dir::L => { self.script_head = self.script_head.saturating_sub(cell_val); },
+                Dir::R => { 
+                    self.script_head = self.script_head.saturating_add(cell_val); 
+                },
+            }
         }
-    } }
-
+    } } // weird two braces on one indent thing (it's fine trust)
 }

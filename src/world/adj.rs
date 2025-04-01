@@ -58,3 +58,16 @@ impl TryFrom<char> for Adj {
         _    => { return Err(()); }
     }) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn try_from_horiz() {
+        assert_eq!(Adj::try_from('-'), Ok(Adj::LR));
+        assert_eq!(Adj::try_from('\\'), Ok(Adj::ULDR));
+        assert_eq!(Adj::try_from('^'), Ok(Adj::U2));
+        assert_eq!(Adj::try_from('+'), Err(()));
+    }
+}
