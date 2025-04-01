@@ -9,6 +9,9 @@ use std::fs::File;
 use std::io::{ Read, BufReader };
 
 
+mod cli;
+pub use cli::*;
+
 mod parser;
 pub use parser::*;
 
@@ -19,15 +22,25 @@ mod runner;
 pub use runner::*;
 
 
-fn main() {
-    // Open the file.
-    let     file   = File::open("samples/simple.isolang").unwrap();
-    // Get the bytes of the file.
-    let     bytes  = BufReader::new(file).bytes();
-    // Parse the bytes.
-    let     script = ScriptParser::parse(bytes).unwrap();
-    // Construct a `ScriptRunner` for the parsed script.
-    let mut runner = ScriptRunner::<cell::U32Cell>::new(script);
-    // Run each instruction until the end of the program is reached.
-    while (runner.run_next()) { }
+fn main() -> Result<(), ParseError> {
+    match (Cli::parse().cmd) {
+
+        CliCommand::Run { cell_mode, source_file } => {
+            let file   = File::open(source_file)?;
+            let bytes  = BufReader::new(file).bytes();
+            let script = ScriptParser::parse(bytes)?;
+            match (cell_mode) {
+                CellMode::U8 => {
+                    let mut runner = ScriptRunner::<cell::U8Cell>::new(script);
+                    while (runner.run_next()) { }
+                },
+                CellMode::U32 => {
+                    let mut runner = ScriptRunner::<cell::U32Cell>::new(script);
+                    while (runner.run_next()) { }
+                }
+            }
+            Ok(())
+        }
+
+    }
 }
