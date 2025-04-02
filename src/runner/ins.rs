@@ -11,7 +11,7 @@ pub struct InsMod {
     /// The kind of instruction modifier.
     pub kind         : InsModKind,
 
-    /// If `true`, randomly choose whether this instruction is run or not.
+    /// If `true`, randomly choose whether this modifier is applied or not.
     pub random_maybe : bool
 
 }
