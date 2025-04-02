@@ -2,8 +2,7 @@
 
 
 use core::ops::{ Deref, DerefMut };
-use std::collections::BTreeMap;
-
+use std::{cmp::Ordering, collections::BTreeMap};
 
 mod coord;
 pub use coord::Coord;
@@ -52,7 +51,15 @@ impl<C : Cell> World<C> {
     /// 
     /// *Note: If the cell does not exist, [`C::default()*](Default::default) is returned.
     pub fn get(&self, coord : Coord) -> C {
-        self.cells.get(&coord).cloned().unwrap_or(C::default())
+        if (coord == Coord::ZERO) {
+            if (coord.relative_pos() == Ordering::Greater) {
+                todo!();
+            } else {
+                C::default()
+            }
+        } else {
+            self.cells.get(&coord).cloned().unwrap_or(C::default())
+        }
     }
 
     /// Get a mutable reference to a cell in the world by coordinate.
@@ -66,8 +73,12 @@ impl<C : Cell> World<C> {
 
     /// Overwrites a cell in the world.
     pub fn insert(&mut self, coord : Coord, cell : C) {
-        // TODO: Stdin/stdout
-        if (cell == C::default()) {
+        // TODO stdin
+        if (coord == Coord::ZERO) {
+            if (coord.relative_pos() == Ordering::Less) {
+                print!("{}", cell);
+            }
+        } else if (cell == C::default()) {
             self.cells.remove(&coord);
         } else {
             self.cells.insert(coord, cell);
