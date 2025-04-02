@@ -141,12 +141,13 @@ impl From<(Adj, Dir,)> for Coord {
 mod tests {
     use super::*;
 
+    const A: Coord = Coord { r : 12, ul : 16 };
+    const B: Coord = Coord { r :  3, ul : 31 };
+
     #[test]
     fn add_sub_coords() {
-        let a = Coord { r : 12, ul : 16 };
-        let b = Coord { r :  3, ul : 31 };
-        assert_eq!(a + b, Coord { r : 15, ul :  47 });
-        assert_eq!(a - b, Coord { r :  9, ul : -15 });
+        assert_eq!(A + B, Coord { r : 15, ul :  47 });
+        assert_eq!(A - B, Coord { r :  9, ul : -15 });
     }
 
     #[test]
@@ -177,6 +178,7 @@ mod tests {
 
     #[test]
     fn add_coord_adj_dir() {
+        // assert_eq!(Coord { r : })
         // TODO
     }
     
