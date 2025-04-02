@@ -24,10 +24,10 @@ pub enum InsModKind {
     Invert,
 
     /// Makes the instruction only run if the cell at the world head is not zero.
-    IfNotZeroCond
+    IfNotZeroCond,
 
-    // TODO add a random whether or not instruction (not modifier) is run
-
+    /// Skips the instruction, ie it is not run
+    Skip
 }
 
 
@@ -146,7 +146,8 @@ impl Ins {
     pub fn modify(self, modifier : InsMod) -> Result<Self, BadInvertError> {
         let ins = match (modifier.kind) {
             InsModKind::Invert        => self.clone().invert(),
-            InsModKind::IfNotZeroCond => Ok(Self::IfNotZeroCond { ins : Box::new(self.clone()) })
+            InsModKind::IfNotZeroCond => Ok(Self::IfNotZeroCond { ins : Box::new(self.clone()) }),
+            InsModKind::Skip => Ok(Self::Noop),
         }?;
         Ok(if (modifier.random_maybe) {
             Ins::RandomlyChoose { options : Box::new((self, ins,)) }
