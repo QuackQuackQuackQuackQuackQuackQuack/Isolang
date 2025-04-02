@@ -2,7 +2,7 @@
 
 
 use crate::world::{ Adj, Dir };
-use crate::runner::ins::{ Ins, InsMod, InsModKind };
+use crate::runner::ins::{ Ins, InsMod, InsModKind, BadInvertError };
 use std::io;
 use std::iter::Peekable;
 
@@ -90,7 +90,7 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
         loop {
             let Some(ch) = self.next_char()?
                 else { return Ok(None); };
-            return Ok(Some(match (ch) {
+            let mut ins = match (ch) {
                 '+' => Ins::Add { adj : self.parse_adj()? },
                 '*' => Ins::Mul { adj : self.parse_adj()? },
                 '~' => Ins::Swap { adj : self.parse_adj()? },
@@ -98,7 +98,11 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
                 ';' => Ins::MoveHeadDynamic { adj: self.parse_adj()?, dir: Dir::R },
                 ':' => Ins::JumpThruCode { dir: Dir::R },
                 _   => { continue; }
-            }));
+            };
+            while let Some(ins_mod) = self.parse_ins_mod()? {
+                ins = ins.modify(ins_mod)?;
+            }
+            return Ok(Some(ins));
         }
     }
 
@@ -111,64 +115,46 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
     fn parse_adj(&mut self) -> Result<Adj, ParseError> {
         let Some(ch) = self.next_char()?
             else { return Err(ParseError::BadEOF); };
-        return Ok(match (ch) {
+        Ok(match (ch) {
             '\\' => Adj::ULDR,
             '/' => Adj::DLUR,
             '-' => Adj::LR,
             '^' => Adj::D2,
             'v' => Adj::U2,
             _ => return Err(ParseError::BadChar(ch))
-        });
+        })
     }
 
-    /// Parses a single instruction modifier, if it exists.
+    /// Parses a single instruction modifier.
     /// 
-    /// # Returns
-    /// Returns
+    /// ### Returns
+    /// Returns:
     /// - `Ok(Some(_))` if an instruction modifier was successfully parsed.
-    /// - `Ok(None)` if there is no instruction modifier.
-    /// - `Err(_)` if some other error occured.
+    /// - `Ok(None)` if no instruction modifier was parsed.
+    /// - `Err())` if some other error occured.
     fn parse_ins_mod(&mut self) -> Result<Option<InsMod>, ParseError> {
-        // Get the kind of modifier, if possible.
-        let kind = match (self.parse_ins_mod_kind()) {
-            Ok(Some(kind)) => kind,
-            Ok(None)       => { return Ok(None); },
-            Err(err)       => { return Err(err); }
-        };
-        // Construct the value to return.
-        let mut ins_mod = InsMod {
-            kind,
-            random_maybe : false
-        };
-        // Check for random_maybe.
-        if let Some('#') = self.peek_char()? {
-            ins_mod.random_maybe = true;
-            self.skip_char()?;
-        }
-        // Return the parsed value.
-        Ok(Some(ins_mod))
-    }
-
-    /// Parses a single instruction modifier kind, if it eixsts.
-    /// 
-    /// # Returns
-    /// Returns
-    /// - `Ok(Some(_))` if an instruction modifier kind was successfully parsed.
-    /// - `Ok(None)` if there is no instruction modifier kind.
-    /// - `Err(_)` if some other error occured.
-    fn parse_ins_mod_kind(&mut self) -> Result<Option<InsModKind>, ParseError> {
-        // Get the next unread character without marking it as read.
         let Some(ch) = self.peek_char()?
             else { return Ok(None); };
-        // Figure out what modifier kind the character is.
-        let ins_mod_kind = match (ch) {
-            '!' => InsModKind::Invert,
-            '?' => InsModKind::IfNotZeroCond,
-            _   => { return Ok(None); }
-        };
-        // If the character was a valid modifier kind, mark it as read.
-        self.skip_char()?;
-        Ok(Some(ins_mod_kind))
+        if (ch == '#') {
+            self.skip_char()?;
+            Ok(Some(InsMod {
+                kind         : InsModKind::Skip,
+                random_maybe : true
+            }))
+        } else {
+            let kind = match (ch) {
+                '?' => InsModKind::IfNotZeroCond,
+                '!' => InsModKind::Invert,
+                _   => { return Ok(None); }
+            };
+            self.skip_char()?;
+            let mut random_maybe = false;
+            if let Some('#') = self.peek_char()? {
+                random_maybe = true;
+                self.skip_char()?;
+            }
+            Ok(Some(InsMod { kind, random_maybe }))
+        }
     }
 
 }
@@ -185,12 +171,21 @@ pub enum ParseError {
     BadEOF,
 
     /// An unexpected character was found.
-    BadChar(char)
+    BadChar(char),
+
+    /// An instruction that can not be inverted was inverted.
+    BadInvert
+
 }
 
 /// Allows using the `?` operator on `Err(io::Error)` types to auto-convert them to [`ParseError`].
 impl From<io::Error> for ParseError {
     fn from(err : io::Error) -> Self { Self::Io(err) }
+}
+
+/// Allows using the `?` operator on `Err(BadInvertError)` types to auto-convert them to [`ParseError`].
+impl From<BadInvertError> for ParseError {
+    fn from(_ : BadInvertError) -> Self { Self::BadInvert }
 }
 
 // TODO tests
