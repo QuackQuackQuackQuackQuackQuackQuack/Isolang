@@ -1,6 +1,6 @@
 //! # Isolang
 //! Parser & Interpreter
-//! 
+//!
 //! TODO: Crate docs
 
 #![feature(assert_matches)]

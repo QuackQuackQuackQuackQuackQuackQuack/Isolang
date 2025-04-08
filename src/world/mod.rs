@@ -2,7 +2,8 @@
 
 
 use core::ops::{ Deref, DerefMut };
-use std::{cmp::Ordering, collections::BTreeMap};
+use core::hint;
+use std::collections::BTreeMap;
 
 mod coord;
 pub use coord::Coord;
@@ -15,24 +16,28 @@ pub use dir::Dir;
 
 
 pub mod cell;
-pub use cell::Cell;
+pub use cell::{ Cell, CellStdinReadError };
 
 
 /// A container for the cell grid and world head.
 pub struct World<C : Cell> {
 
     /// The current position of the world head.
-    head  : Coord,
+    head        : Coord,
 
     /// The cells in the world.
-    cells : BTreeMap<Coord, C>
+    cells       : BTreeMap<Coord, C>,
+
+    /// Standard in data.
+    stdin       : C::StdinReader
 
 }
 
 impl<C : Cell> Default for World<C> {
     fn default() -> Self { Self {
-        head  : Coord::ZERO,
-        cells : BTreeMap::new()
+        head        : Coord::ZERO,
+        cells       : BTreeMap::new(),
+        stdin       : C::create_stdin_reader()
     } }
 }
 
@@ -48,17 +53,22 @@ impl<C : Cell> World<C> {
     }
 
     /// Get a cell in the world by coordinate.
-    /// 
+    ///
     /// *Note: If the cell does not exist, [`C::default()*](Default::default) is returned.
-    pub fn get(&self, coord : Coord) -> C {
+    pub fn get(&mut self, coord : Coord) -> C {
         if (coord == Coord::ZERO) {
-            if (coord.relative_pos() == Ordering::Greater) {
-                todo!();
+            if let Some(Dir::R) = coord.half_side() {
+                loop {
+                    if let Some(Ok(ch)) = self.stdin.next() {
+                        return ch;
+                    }
+                    hint::spin_loop();
+                }
             } else {
-                C::default()
+                C::ONE
             }
         } else {
-            self.cells.get(&coord).cloned().unwrap_or(C::default())
+            self.cells.get(&coord).cloned().unwrap_or(C::ONE)
         }
     }
 
@@ -73,12 +83,11 @@ impl<C : Cell> World<C> {
 
     /// Overwrites a cell in the world.
     pub fn insert(&mut self, coord : Coord, cell : C) {
-        // TODO stdin
         if (coord == Coord::ZERO) {
-            if (coord.relative_pos() == Ordering::Less) {
+            if let Some(Dir::L) = coord.half_side() {
                 print!("{}", cell);
             }
-        } else if (cell == C::default()) {
+        } else if (cell == C::ONE) {
             self.cells.remove(&coord);
         } else {
             self.cells.insert(coord, cell);
