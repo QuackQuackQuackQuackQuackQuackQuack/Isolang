@@ -29,17 +29,19 @@ fn main() -> Result<(), ParseError> {
             let file   = File::open(source_file)?;
             let bytes  = BufReader::new(file).bytes();
             let script = ScriptParser::parse(bytes)?;
-            println!("{:#?}", script);
             match (cell_mode) {
                 CellMode::U8 => {
                     let mut runner = ScriptRunner::<cell::U8Cell>::new(script);
                     while (runner.run_next()) { }
+                    println!("{}", runner.world_mut());
                 },
                 CellMode::U32 => {
                     let mut runner = ScriptRunner::<cell::U32Cell>::new(script);
                     while (runner.run_next()) { }
+                    println!("{}", runner.world_mut());
                 }
             }
+            println!();
             Ok(())
         }
 

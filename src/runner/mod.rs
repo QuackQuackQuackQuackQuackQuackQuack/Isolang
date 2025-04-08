@@ -42,6 +42,9 @@ impl<C : Cell> ScriptRunner<C> {
         }
     } }
 
+    /// Get a mutable reference to the [`World`] in this runner.
+    pub fn world_mut(&mut self) -> &mut World<C> { &mut self.state.world }
+
 }
 
 

@@ -19,6 +19,9 @@ pub mod cell;
 pub use cell::{ Cell, CellStdinReadError };
 
 
+mod fmt;
+
+
 /// A container for the cell grid and world head.
 pub struct World<C : Cell> {
 

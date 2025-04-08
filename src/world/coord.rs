@@ -9,7 +9,7 @@ use core::ops::{ Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Neg, Index, Ind
 /// A position in a [`World`].
 /// 
 /// Positive direction is right/up-left.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct Coord {
     /// Number of cells to the right direction.
     r  : isize,
@@ -35,16 +35,26 @@ impl Coord {
 
     /// Whether this Coord is to the left or right of the origin.
     pub fn half_side(&self) -> Option<Dir> {
-        let x_pos_times_2 = self.r * 2 - self.ul;
-        match x_pos_times_2 {
+        match (self.absolute_x()) {
             ..=-1 => Some(Dir::L),
             0     => None,
             1..   => Some(Dir::R)
         }
     }
+
+    /// The absolute x position of the cell.
+    pub fn absolute_x(&self) -> isize { (self.r * 2) - self.ul }
+    /// The absolute y position of the cell.
+    pub fn absolute_y(&self) -> isize { self.ul }
+
+    /// Create a coordinate from the absolute position on the grid.
+    pub fn from_absolute(x : isize, y : isize) -> Self {
+        Self { r : (x + y) / 2, ul : y }
+    }
+
 }
 
-impl fmt::Debug for Coord {
+impl fmt::Display for Coord {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "(r:{},ul:{})", self.r, self.ul)
     }
