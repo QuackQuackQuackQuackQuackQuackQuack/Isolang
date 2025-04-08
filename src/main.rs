@@ -29,6 +29,7 @@ fn main() -> Result<(), ParseError> {
             let file   = File::open(source_file)?;
             let bytes  = BufReader::new(file).bytes();
             let script = ScriptParser::parse(bytes)?;
+            println!("{:#?}", script);
             match (cell_mode) {
                 CellMode::U8 => {
                     let mut runner = ScriptRunner::<cell::U8Cell>::new(script);
