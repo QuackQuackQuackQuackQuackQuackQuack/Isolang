@@ -97,7 +97,13 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
                 '>' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::R },
                 ';' => Ins::MoveHeadDynamic { adj: self.parse_adj()?, dir: Dir::R },
                 ':' => Ins::JumpThruCode { dir: Dir::R },
-                _   => { continue; }
+                ' '|'\n'|'\t'|'\r' => { continue; }
+                _   => {
+                    #[cfg(debug_assertions)]
+                    return Err(ParseError::BadChar(ch));
+                    #[cfg(not(debug_assertions))]
+                    continue;
+                }
             };
             while let Some(ins_mod) = self.parse_ins_mod()? {
                 ins = ins.modify(ins_mod)?;
