@@ -4,7 +4,6 @@
 use crate::world::{ Adj, Dir };
 use core::fmt;
 use core::ops::{ Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Neg, Index, IndexMut };
-use std::cmp::Ordering;
 
 
 /// A position in a [`World`].
@@ -34,13 +33,13 @@ impl Coord {
     /// One unit down-right.
     pub const DR : Self = Self { r : 0, ul : -1 };
 
-    /// The position in the x-direction of the Coord relative to ZERO
-    pub fn relative_pos (&self) -> Ordering {
+    /// Whether this Coord is to the left or right of the origin.
+    pub fn half_side(&self) -> Option<Dir> {
         let x_pos_times_2 = self.r * 2 - self.ul;
         match x_pos_times_2 {
-            ..=-1 => Ordering::Less,
-            0 => Ordering::Equal,
-            1.. => Ordering::Greater
+            ..=-1 => Some(Dir::L),
+            0     => None,
+            1..   => Some(Dir::R)
         }
     }
 }

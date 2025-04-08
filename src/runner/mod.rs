@@ -48,7 +48,7 @@ impl<C : Cell> ScriptRunner<C> {
 impl<C : Cell> ScriptRunner<C> {
 
     /// Runs the next step in the script.
-    /// 
+    ///
     /// ### Returns
     /// Returns `false` if the program has finished.
     pub fn run_next(&mut self) -> bool {
@@ -70,65 +70,70 @@ impl<C : Cell> ScriptRunnerState<C> {
     {
         let head = self.world.head();
         let (l, r,) = head + adj;
-        self.world.insert(head, f(self.world.get(l), self.world.get(r)));
+        let l = self.world.get(l);
+        let r = self.world.get(r);
+        self.world.insert(head, f(l, r));
     }
 
 
     /// Runs a single instruction in this [`World`].
-    pub fn run_ins(&mut self, ins : &Ins) { match (ins) {
+    pub fn run_ins(&mut self, ins : &Ins) {
+        match (ins) {
 
-        Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
+            Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
 
-        Ins::MoveHeadDynamic { adj, dir } => { 
-            let cell_val = self.world.get(self.world.head()).get_usize_val() as isize;
-            *self.world.head_mut() += Coord::from((*adj, *dir)) * cell_val
-        },
+            Ins::MoveHeadDynamic { adj, dir } => {
+                let cell_val = self.world.get(self.world.head()).get_usize_val() as isize;
+                *self.world.head_mut() += Coord::from((*adj, *dir)) * cell_val
+            },
 
-        Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
+            Ins::Add { adj } => { self.run_binop(*adj, |a, b| a + b); },
 
-        Ins::Sub { adj } => { self.run_binop(*adj, |a, b| a - b); },
+            Ins::Sub { adj } => { self.run_binop(*adj, |a, b| a - b); },
 
-        Ins::Mul { adj } => { self.run_binop(*adj, |a, b| a * b); },
+            Ins::Mul { adj } => { self.run_binop(*adj, |a, b| a * b); },
 
-        Ins::SDiv { adj } => { self.run_binop(*adj, |a, b| a / b); },
+            Ins::SDiv { adj } => { self.run_binop(*adj, |a, b| a / b); },
 
-        Ins::Swap { adj } => {
-            let head = self.world.head();
-            let (l, r,) = head + *adj;
-            let save_l_val = self.world.get(l);
-            self.world.insert(l, self.world.get(r));
-            self.world.insert(r, save_l_val);
-        },
+            Ins::Swap { adj } => {
+                let head = self.world.head();
+                let (l, r,) = head + *adj;
+                let lv = self.world.get(l);
+                let rv = self.world.get(r);
+                self.world.insert(l, rv);
+                self.world.insert(r, lv);
+            },
 
-        Ins::Noop => { },
+            Ins::Noop => { },
 
-        Ins::IfNotZeroCond { ins } => {
-            if (! self.world.get(self.world.head()).is_zero()) {
-                self.run_ins(ins);
+            Ins::IfNotZeroCond { ins } => {
+                if (self.world.get(self.world.head()) != C::ZERO) {
+                    self.run_ins(ins);
+                }
+            },
+
+            Ins::IfZeroCond { ins } => {
+                if (self.world.get(self.world.head()) == C::ZERO) {
+                    self.run_ins(ins);
+                }
+            },
+
+            Ins::RandomlyChoose { options } => {
+                if (random::<bool>()) { self.run_ins(&options.0); }
+                else                  { self.run_ins(&options.1); }
             }
-        },
 
-        Ins::IfZeroCond { ins } => {
-            if (self.world.get(self.world.head()).is_zero()) {
-                self.run_ins(ins);
+            Ins::JumpThruCode { dir } => {
+                let cell_val = self.world.get(self.world.head()).get_usize_val();
+                match (dir) {
+                    Dir::L => { self.script_head = self.script_head.saturating_sub(cell_val); },
+                    Dir::R => {
+                        self.script_head = self.script_head.saturating_add(cell_val);
+                    },
+                }
             }
-        },
-
-        Ins::RandomlyChoose { options } => {
-            if (random::<bool>()) { self.run_ins(&options.0); }
-            else                  { self.run_ins(&options.1); }
         }
-
-        Ins::JumpThruCode { dir } => {
-            let cell_val = self.world.get(self.world.head()).get_usize_val();
-            match (dir) {
-                Dir::L => { self.script_head = self.script_head.saturating_sub(cell_val); },
-                Dir::R => { 
-                    self.script_head = self.script_head.saturating_add(cell_val); 
-                },
-            }
-        }
-    } } // weird two braces on one indent thing (it's fine trust)
+    }
 }
 
 // TODO tests

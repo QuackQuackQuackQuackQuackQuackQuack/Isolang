@@ -1,9 +1,10 @@
 //! A cell containing a [`u8`].
 
 
-use crate::world::Cell;
+use crate::world::{ Cell, CellStdinReadError };
 use core::ops::{ Add, Sub, Mul, Div };
 use core::fmt;
+use std::io::{ self, Read, BufReader, Stdin };
 
 
 /// A cell containing a [`u32`].
@@ -45,11 +46,20 @@ impl Div for U32Cell {
 }
 
 impl Cell for U32Cell {
-    fn is_zero(&self) -> bool { self.0 == 0 }
-    
+
+    type StdinReader = StdinCharReader;
+
+    const ZERO : Self = Self(0);
+    const ONE  : Self = Self(1);
+
     fn get_usize_val(&self) -> usize {
         self.0 as usize
     }
+
+    fn create_stdin_reader() -> Self::StdinReader {
+        StdinCharReader::default()
+    }
+
 }
 
 impl fmt::Display for U32Cell {
@@ -58,5 +68,43 @@ impl fmt::Display for U32Cell {
             Some(ch) => write!(f, "{}", ch),
             None     => Ok(())
         }
+    }
+}
+
+
+/// An iterator over UTF8 characters read from stdin.
+pub struct StdinCharReader {
+    /// Buffered stdin reader.
+    reader : BufReader<Stdin>
+}
+
+impl Default for StdinCharReader {
+    fn default() -> Self {
+        Self { reader : BufReader::new(io::stdin()) }
+    }
+}
+
+impl Iterator for StdinCharReader {
+    type Item = Result<U32Cell, CellStdinReadError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut bytes = [0u8; 4];
+        for n in 0..4 {
+            let mut buf = [0u8];
+            match (self.reader.read(&mut buf)) {
+                Ok(0)    => { return None; },
+                Ok(1)    => { bytes[n] = buf[0]; },
+                Ok(_)    => unreachable!(),
+                Err(err) => { return Some(Err(err.into())); }
+            }
+            match (str::from_utf8(&bytes[..=n])) {
+                Ok(s) => { return Some(Ok(U32Cell(s.chars().next().unwrap() as u32))); },
+                Err(err) if (err.error_len().is_some()) => {
+                    return Some(Err(err.into()));
+                },
+                _ => { }
+            }
+        }
+        unreachable!()
     }
 }
