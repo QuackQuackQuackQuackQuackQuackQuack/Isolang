@@ -60,7 +60,7 @@ impl<C : Cell> World<C> {
     /// *Note: If the cell does not exist, [`C::default()*](Default::default) is returned.
     pub fn get(&mut self, coord : Coord) -> C {
         if (coord == Coord::ZERO) {
-            if let Some(Dir::R) = coord.half_side() {
+            if let Some(Dir::R) = self.head.half_side() {
                 loop {
                     if let Some(Ok(ch)) = self.stdin.next() {
                         return ch;
@@ -87,7 +87,7 @@ impl<C : Cell> World<C> {
     /// Overwrites a cell in the world.
     pub fn insert(&mut self, coord : Coord, cell : C) {
         if (coord == Coord::ZERO) {
-            if let Some(Dir::L) = coord.half_side() {
+            if let Some(Dir::L) = self.head.half_side() {
                 print!("{}", cell);
             }
         } else if (cell == C::ONE) {

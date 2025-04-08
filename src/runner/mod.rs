@@ -82,6 +82,7 @@ impl<C : Cell> ScriptRunnerState<C> {
 
     /// Runs a single instruction in this [`World`].
     pub fn run_ins(&mut self, ins : &Ins) {
+
         match (ins) {
 
             Ins::MoveHeadOne { adj, dir } => { *self.world.head_mut() += (*adj, *dir,); },
