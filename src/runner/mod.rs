@@ -55,6 +55,9 @@ impl<C : Cell> ScriptRunner<C> {
         let Some(ins) = self.script.get(self.state.script_head)
             else { return false; };
         self.state.run_ins(ins);
+        self.state.script_head += 1;
+        println!("{:?}", ins);
+        println!("{:?}", self.state.script_head);
         true
     }
 }
