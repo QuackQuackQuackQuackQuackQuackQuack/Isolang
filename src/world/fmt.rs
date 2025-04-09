@@ -23,14 +23,16 @@ impl<C : Cell> fmt::Display for World<C> {
         let value_len = (max_value.checked_ilog10()).map_or(1, |v| (v as usize) + 1);
 
         for y in (min_y..=max_y).rev() {
-            write!(f, "|")?;
-            let first_x = (y.rem_euclid(2) != 0);
+            write!(f, "| ")?;
+            let first_x = min_x.rem_euclid(2) != y.rem_euclid(2);
             if (first_x) { write!(f, "{: >value_len$}", "")?; }
             let mut x = min_x + (first_x as isize);
             while (x <= max_x) {
                 let coord = Coord::from_absolute(x, y);
                 let cell  = self.cells.get(&coord).cloned().unwrap_or(C::ONE).get_usize_val();
+                if (coord == Coord::ZERO) { write!(f, "\x1b[96m\x1b[1m")?; }
                 write!(f, "{: >value_len$}{: >value_len$}", cell, "")?;
+                if (coord == Coord::ZERO) { write!(f, "\x1b[0m")?; }
                 x += 2;
             }
             writeln!(f)?;
