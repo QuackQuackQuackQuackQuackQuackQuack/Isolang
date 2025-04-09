@@ -21,6 +21,7 @@ where Self
     : PartialEq
     + Clone + Copy
     + fmt::Display
+    + fmt::Debug
     + Add<Self, Output = Self>
     + Sub<Self, Output = Self>
     + Mul<Self, Output = Self>

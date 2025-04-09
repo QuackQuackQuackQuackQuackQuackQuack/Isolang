@@ -18,11 +18,13 @@ pub use dir::Dir;
 pub mod cell;
 pub use cell::{ Cell, CellStdinReadError };
 
-
+//TODO: figure this out
+/// clippy says I need documentation here. No idea what it does though
 mod fmt;
 
 
 /// A container for the cell grid and world head.
+#[derive(Debug)]
 pub struct World<C : Cell> {
 
     /// The current position of the world head.
@@ -96,7 +98,7 @@ impl<C : Cell> World<C> {
             self.cells.insert(coord, cell);
         }
     }
-
+    
 }
 
 

@@ -63,6 +63,11 @@ impl fmt::Display for U8Cell {
     }
 }
 
+impl fmt::Debug for U8Cell {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
 
 /// An iterator over u8s read from stdin.
 pub struct StdinU8Reader {

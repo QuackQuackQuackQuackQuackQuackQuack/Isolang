@@ -71,6 +71,11 @@ impl fmt::Display for U32Cell {
     }
 }
 
+impl fmt::Debug for U32Cell {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
 
 /// An iterator over UTF8 characters read from stdin.
 pub struct StdinCharReader {
