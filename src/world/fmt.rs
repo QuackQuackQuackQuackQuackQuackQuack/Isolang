@@ -4,18 +4,18 @@ use core::fmt;
 
 impl<C : Cell> fmt::Display for World<C> {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut min_x     = 0isize;
-        let mut max_x     = 0isize;
-        let mut min_y     = 0isize;
-        let mut max_y     = 0isize;
-        let mut max_value = 0usize;
+        let mut min_x     = -1isize;
+        let mut max_x     =  1isize;
+        let mut min_y     = -1isize;
+        let mut max_y     =  1isize;
+        let mut max_value =  0usize;
         for (coord, value) in self.cells.iter().chain([(&self.head, self.cells.get(&self.head).unwrap_or(&C::ONE))]) {
             let x = coord.absolute_x();
             let y = coord.absolute_y();
-            min_x = min_x.min(x);
-            max_x = max_x.max(x);
-            min_y = min_y.min(y);
-            max_y = max_y.max(y);
+            min_x = min_x.min(x - 1);
+            max_x = max_x.max(x + 1);
+            min_y = min_y.min(y - 1);
+            max_y = max_y.max(y + 1);
             max_value = max_value.max(value.get_usize_val());
         }
         let value_len = (max_value.checked_ilog10()).map_or(1, |v| (v as usize) + 1);
@@ -43,8 +43,8 @@ impl<C : Cell> fmt::Display for World<C> {
             writeln!(f)?;
         }
         write!(f, "\x1b[94mBL{:-<width$}\x1b[0m", Coord::from_absolute(min_x, min_y), width = 2 + ((max_x.abs_diff(min_x) + 1) * value_len))?;
-        write!(f, " | \x1b[92m\x1b[1mORIGIN{}\x1b[0m", Coord::ZERO)?;
-        write!(f, " | \x1b[91m\x1b[1mHEAD{}\x1b[0m", self.head)?;
+        write!(f, " | \x1b[91m\x1b[1mORIGIN{}\x1b[0m", Coord::ZERO)?;
+        write!(f, " | \x1b[92m\x1b[1mHEAD{}\x1b[0m", self.head)?;
         Ok(())
     }
 }
