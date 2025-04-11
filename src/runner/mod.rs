@@ -46,7 +46,7 @@ impl<C : Cell> ScriptRunner<C> {
     pub fn world_mut(&mut self) -> &mut World<C> { &mut self.state.world }
 
     /// Get a non-mutable reference to the [`World`] in this runner. 
-    pub fn world (&self) -> &World<C> { &self.state.world }
+    pub fn world(&self) -> &World<C> { &self.state.world }
 
 }
 

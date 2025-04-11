@@ -1,21 +1,25 @@
+//! Formatter for Worlds.
+
+
 use crate::world::{ World, Cell, Coord };
 use core::fmt;
 
 
 impl<C : Cell> fmt::Display for World<C> {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut min_x     = -1isize;
-        let mut max_x     =  1isize;
-        let mut min_y     = -1isize;
-        let mut max_y     =  1isize;
+        let margin = self.display_margin as isize;
+        let mut min_x     = -margin;
+        let mut max_x     =  margin;
+        let mut min_y     = -margin;
+        let mut max_y     =  margin;
         let mut max_value =  0usize;
         for (coord, value) in self.cells.iter().chain([(&self.head, self.cells.get(&self.head).unwrap_or(&C::ONE))]) {
             let x = coord.absolute_x();
             let y = coord.absolute_y();
-            min_x = min_x.min(x - 1);
-            max_x = max_x.max(x + 1);
-            min_y = min_y.min(y - 1);
-            max_y = max_y.max(y + 1);
+            min_x = min_x.min(x - margin);
+            max_x = max_x.max(x + margin);
+            min_y = min_y.min(y - margin);
+            max_y = max_y.max(y + margin);
             max_value = max_value.max(value.get_usize_val());
         }
         let value_len = (max_value.checked_ilog10()).map_or(1, |v| (v as usize) + 1);
