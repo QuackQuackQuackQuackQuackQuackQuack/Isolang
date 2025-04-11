@@ -24,10 +24,15 @@ pub enum CliCommand {
 
         /// The type of cells in the world.
         #[clap(short = 'c', long, default_value = "u32")]
-        cell_mode   : CellMode,
+        cell_mode    : CellMode,
+
+        #[cfg(debug_assertions)]
+        /// The margin shown from the result of the `@` instruction.
+        #[clap(short = 'm', long, default_value_t = 1)]
+        world_margin : usize,
 
         /// The source script file to run.
-        source_file : PathBuf
+        source_file  : PathBuf
 
     }
 

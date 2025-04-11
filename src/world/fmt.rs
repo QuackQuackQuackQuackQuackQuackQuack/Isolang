@@ -1,10 +1,13 @@
+//! Formatter for Worlds.
+
+
 use crate::world::{ World, Cell, Coord };
 use core::fmt;
 
 
 impl<C : Cell> fmt::Display for World<C> {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
-        let margin = 2;
+        let margin = self.display_margin as isize;
         let mut min_x     = -margin;
         let mut max_x     =  margin;
         let mut min_y     = -margin;

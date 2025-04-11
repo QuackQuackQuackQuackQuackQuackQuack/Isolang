@@ -18,8 +18,6 @@ pub use dir::Dir;
 pub mod cell;
 pub use cell::{ Cell, CellStdinReadError };
 
-//TODO: figure this out
-/// clippy says I need documentation here. No idea what it does though
 mod fmt;
 
 
@@ -28,25 +26,35 @@ mod fmt;
 pub struct World<C : Cell> {
 
     /// The current position of the world head.
-    head        : Coord,
+    head           : Coord,
 
     /// The cells in the world.
-    cells       : BTreeMap<Coord, C>,
+    cells          : BTreeMap<Coord, C>,
 
     /// Standard in data.
-    stdin       : C::StdinReader
+    stdin          : C::StdinReader,
+
+    #[cfg(debug_assertions)]
+    /// The display margin.
+    display_margin : usize
 
 }
 
 impl<C : Cell> Default for World<C> {
     fn default() -> Self { Self {
-        head        : Coord::ZERO,
-        cells       : BTreeMap::new(),
-        stdin       : C::create_stdin_reader()
+        head           : Coord::ZERO,
+        cells          : BTreeMap::new(),
+        stdin          : C::create_stdin_reader(),
+        #[cfg(debug_assertions)]
+        display_margin : 1
     } }
 }
 
 impl<C : Cell> World<C> {
+
+    /// Sets the display margin.
+    #[cfg(debug_assertions)]
+    pub fn set_display_margin(&mut self, margin : usize) { self.display_margin = margin; }
 
     /// Get the current world head.
     pub fn head(&self) -> Coord {
