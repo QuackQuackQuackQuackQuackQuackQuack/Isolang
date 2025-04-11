@@ -97,6 +97,8 @@ impl<F : Iterator<Item = io::Result<u8>>> ScriptParser<F> {
                 '>' => Ins::MoveHeadOne { adj : self.parse_adj()?, dir : Dir::R },
                 ';' => Ins::MoveHeadDynamic { adj: self.parse_adj()?, dir: Dir::R },
                 ':' => Ins::JumpThruCode { dir: Dir::R },
+                #[cfg(debug_assertions)]
+                '@' => Ins::DumpWorld,
                 ' '|'\n'|'\t'|'\r' => { continue; }
                 _   => {
                     #[cfg(debug_assertions)]

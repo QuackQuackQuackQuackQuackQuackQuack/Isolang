@@ -34,12 +34,10 @@ fn main() -> Result<(), ParseError> {
                 CellMode::U8 => {
                     let mut runner = ScriptRunner::<cell::U8Cell>::new(script);
                     while (runner.run_next()) { }
-                    println!("{}", runner.world_mut());
                 },
                 CellMode::U32 => {
                     let mut runner = ScriptRunner::<cell::U32Cell>::new(script);
                     while (runner.run_next()) { }
-                    println!("{}", runner.world_mut());
                 }
             }
             println!();
