@@ -107,7 +107,12 @@ pub enum Ins {
     RandomlyChoose {
         /// The two instructions to randomly choose between.
         options : Box<(Ins, Ins)>
-    }
+    },
+
+    #[cfg(debug_assertions)]
+    /// Dumps the current world state to the console.
+    DumpWorld
+
 }
 
 impl Ins {
@@ -137,7 +142,10 @@ impl Ins {
 
         Self::IfNotZeroCond { ins } => Ok(Self::IfZeroCond { ins }),
 
-        Self::RandomlyChoose { .. } => Err(BadInvertError)
+        Self::RandomlyChoose { .. } => Err(BadInvertError),
+
+        #[cfg(debug_assertions)]
+        Self::DumpWorld => Err(BadInvertError)
 
     } }
 

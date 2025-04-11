@@ -60,8 +60,9 @@ impl<C : Cell> ScriptRunner<C> {
     pub fn run_next(&mut self) -> bool {
         let Some(ins) = self.script.get(self.state.script_head)
             else { return false; };
-        self.state.run_ins(ins);
-        self.state.script_head += 1;
+        if (self.state.run_ins(ins)) {
+            self.state.script_head += 1;
+        }
         true
     }
 }
@@ -84,7 +85,7 @@ impl<C : Cell> ScriptRunnerState<C> {
 
 
     /// Runs a single instruction in this [`World`].
-    pub fn run_ins(&mut self, ins : &Ins) {
+    pub fn run_ins(&mut self, ins : &Ins) -> bool {
 
         match (ins) {
 
@@ -139,8 +140,15 @@ impl<C : Cell> ScriptRunnerState<C> {
                         self.script_head = self.script_head.saturating_add(cell_val);
                     },
                 }
+                return false;
+            },
+
+            Ins::DumpWorld => {
+                println!("\n{}", self.world);
             }
+
         }
+        true
     }
 }
 
